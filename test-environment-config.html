@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configurez votre environnement de test</title>
+<style>
+  :root {
+    --color-primary: #3f8a76;
+    --color-primary-dark: #326d5e;
+    --color-primary-light: #eaf4f1;
+    --color-error: #dc2626;
+    --color-error-bg: #fee2e2;
+    --color-success: #16a34a;
+    --color-success-bg: #dcfce7;
+    --color-border: #d1d5db;
+    --color-border-hover: #9ca3af;
+    --color-text: #111827;
+    --color-muted: #6b7280;
+    --color-bg: #f6f7f9;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 3rem 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--color-text);
+    position: relative;
+    overflow-x: hidden;
+    background: linear-gradient(to bottom, #7ec8f2 0%, #a9dcf5 35%, #d9eefb 70%, #f0f8fd 100%);
+  }
+
+  /* ===================== ARRIERE-PLAN NUAGES ===================== */
+  .clouds-bg {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .cloud {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50%;
+    opacity: 0.85;
+    filter: blur(0.5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+  }
+
+  .cloud::before,
+  .cloud::after {
+    content: "";
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50%;
+  }
+
+  .cloud-1 { width: 120px; height: 44px; top: 8%; left: -160px; animation: float-right 42s linear infinite; }
+  .cloud-1::before { width: 70px; height: 70px; top: -34px; left: 15px; }
+  .cloud-1::after  { width: 50px; height: 50px; top: -22px; left: 65px; }
+
+  .cloud-2 { width: 90px; height: 34px; top: 20%; left: -140px; animation: float-right 55s linear infinite; animation-delay: -18s; }
+  .cloud-2::before { width: 55px; height: 55px; top: -26px; left: 10px; }
+  .cloud-2::after  { width: 38px; height: 38px; top: -16px; left: 48px; }
+
+  .cloud-3 { width: 150px; height: 52px; top: 65%; left: -190px; animation: float-right 60s linear infinite; animation-delay: -30s; opacity: 0.7; }
+  .cloud-3::before { width: 85px; height: 85px; top: -42px; left: 20px; }
+  .cloud-3::after  { width: 60px; height: 60px; top: -26px; left: 80px; }
+
+  .cloud-4 { width: 100px; height: 38px; top: 80%; left: -150px; animation: float-right 48s linear infinite; animation-delay: -10s; opacity: 0.6; }
+  .cloud-4::before { width: 60px; height: 60px; top: -28px; left: 12px; }
+  .cloud-4::after  { width: 42px; height: 42px; top: -18px; left: 52px; }
+
+  @keyframes float-right {
+    from { transform: translateX(0); }
+    to   { transform: translateX(calc(100vw + 300px)); }
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .config-card {
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(4px);
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 2.25rem 2.5rem 2.5rem;
+    width: 100%;
+    max-width: 620px;
+    box-shadow: 0 8px 30px rgba(30, 58, 138, 0.15);
+  }
+
+  .config-card h1 {
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .config-card .subtitle {
+    margin: 0 0 1.8rem 0;
+    font-size: 0.95rem;
+    color: var(--color-muted);
+  }
+
+  .field-group {
+    margin-bottom: 1.6rem;
+  }
+
+  .field-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .required-mark {
+    color: var(--color-error);
+  }
+
+  /* ===================== SELECTS NATIFS (framework / niveau) ===================== */
+  .select-wrapper {
+    position: relative;
+  }
+
+  select.native-select {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 0.7rem 2.5rem 0.7rem 0.9rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--color-text);
+    background-color: #fafbfc;
+    border: 1px solid var(--color-border);
+    border-radius: 9px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+
+  select.native-select:hover {
+    border-color: var(--color-border-hover);
+    background-color: #f4f5f6;
+  }
+
+  select.native-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(63, 138, 118, 0.15);
+  }
+
+  select.native-select.field-error-border {
+    border-color: var(--color-error);
+  }
+
+  .select-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid var(--color-muted);
+    border-bottom: 2px solid var(--color-muted);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+
+  /* ===================== LISTE MULTI-SELECTION (langages) ===================== */
+  .languages-listbox {
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    border-radius: 9px;
+    background-color: #fafbfc;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .languages-listbox.field-error-border {
+    border-color: var(--color-error);
+  }
+
+  .languages-listbox:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(63, 138, 118, 0.15);
+  }
+
+  .language-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.65rem 0.9rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--color-text);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #eef0f2;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .language-option:last-child {
+    border-bottom: none;
+  }
+
+  .language-option:hover {
+    background-color: #f0f2f4;
+  }
+
+  .language-option.selected {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .language-option.selected:hover {
+    background-color: var(--color-primary-dark);
+  }
+
+  .language-option:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+
+  /* ===================== MESSAGES D'ERREUR PAR CHAMP ===================== */
+  .field-error {
+    display: none;
+    color: var(--color-error);
+    font-size: 0.82rem;
+    margin-top: 0.4rem;
+  }
+
+  .field-error.visible {
+    display: block;
+  }
+
+  /* ===================== MESSAGE GLOBAL (succès / erreur de compatibilité) ===================== */
+  #form-message {
+    margin-top: 0.4rem;
+    margin-bottom: 1.4rem;
+    padding: 0.8rem 1rem;
+    border-radius: 9px;
+    font-size: 0.9rem;
+    display: none;
+    line-height: 1.5;
+  }
+
+  #form-message.visible {
+    display: block;
+  }
+
+  #form-message.success {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
+  }
+
+  #form-message.error {
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
+  }
+
+  /* ===================== BOUTONS ===================== */
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.4rem;
+  }
+
+  .btn {
+    padding: 0.7rem 1.4rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  }
+
+  .btn-primary {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-primary-dark);
+    box-shadow: 0 4px 12px rgba(63, 138, 118, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    background-color: #ffffff;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--color-border-hover);
+    background-color: #f4f5f6;
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary:active {
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== ARRIERE-PLAN DECORATIF ===================== -->
+<div class="clouds-bg" aria-hidden="true">
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+  <div class="cloud cloud-4"></div>
+</div>
+
+
+
+<div class="wrapper">
+  <div class="config-card">
+    <h1 data-testid="config-title">Configurez votre environnement de test</h1>
+    <p class="subtitle" data-testid="config-subtitle">Sélectionnez un framework, un ou plusieurs langages et votre niveau.</p>
+
+    <form id="config-form" data-testid="config-form" novalidate>
+
+      <!-- ===================== FRAMEWORK ===================== -->
+      <div class="field-group">
+        <label for="framework-select">Framework de test <span class="required-mark">*</span></label>
+        <div class="select-wrapper">
+          <select id="framework-select" class="native-select" data-testid="framework-select">
+            <option value="">-- Sélectionner --</option>
+            <option value="Playwright">Playwright</option>
+            <option value="Cypress">Cypress</option>
+            <option value="Selenium">Selenium</option>
+            <option value="Puppeteer">Puppeteer</option>
+            <option value="WebdriverIO">WebdriverIO</option>
+          </select>
+        </div>
+        <span id="framework-error" class="field-error" data-testid="framework-error"></span>
+      </div>
+
+      <!-- ===================== LANGAGES (sélection multiple) ===================== -->
+      <div class="field-group">
+        <label id="languages-label">Langages <span class="required-mark">*</span> (sélection multiple)</label>
+        <div
+          class="languages-listbox"
+          id="languages-listbox"
+          data-testid="languages-listbox"
+          role="listbox"
+          aria-multiselectable="true"
+          aria-labelledby="languages-label"
+          tabindex="0"
+        >
+          <button type="button" class="language-option" role="option" aria-selected="false" data-value="TypeScript" data-testid="language-option-typescript">TypeScript</button>
+          <button type="button" class="language-option" role="option" aria-selected="false" data-value="JavaScript" data-testid="language-option-javascript">JavaScript</button>
+          <button type="button" class="language-option" role="option" aria-selected="false" data-value="Python" data-testid="language-option-python">Python</button>
+          <button type="button" class="language-option" role="option" aria-selected="false" data-value="Java" data-testid="language-option-java">Java</button>
+          <button type="button" class="language-option" role="option" aria-selected="false" data-value="C#" data-testid="language-option-csharp">C#</button>
+          <button type="button" class="language-option" role="option" aria-selected="false" data-value="PHP" data-testid="language-option-php">PHP</button>
+        </div>
+        <span id="languages-error" class="field-error" data-testid="languages-error"></span>
+      </div>
+
+      <!-- ===================== NIVEAU ===================== -->
+      <div class="field-group">
+        <label for="level-select">Niveau <span class="required-mark">*</span></label>
+        <div class="select-wrapper">
+          <select id="level-select" class="native-select" data-testid="level-select">
+            <option value="">-- Sélectionner --</option>
+            <option value="Débutant">Débutant</option>
+            <option value="Intermédiaire">Intermédiaire</option>
+            <option value="Avancé">Avancé</option>
+            <option value="Expert">Expert</option>
+          </select>
+        </div>
+        <span id="level-error" class="field-error" data-testid="level-error"></span>
+      </div>
+
+      <!-- ===================== MESSAGE GLOBAL ===================== -->
+      <div id="form-message" data-testid="form-message" role="alert"></div>
+
+      <!-- ===================== ACTIONS ===================== -->
+      <div class="actions">
+        <button type="submit" class="btn btn-primary" id="validate-btn" data-testid="validate-button">Valider</button>
+        <button type="button" class="btn btn-secondary" id="reset-btn" data-testid="reset-button">Réinitialiser</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+  /**
+   * ===============================================================
+   * Configuration de l'environnement de test — validation côté client
+   * ===============================================================
+   */
+
+  // Langage(s) incompatible(s) avec certains frameworks
+  const INCOMPATIBLE_COMBINATIONS = [
+    {
+      framework: "Playwright",
+      language: "PHP",
+      message: "Playwright n'est pas compatible avec PHP. Choisissez un autre langage (TypeScript, JavaScript, Python, Java, C#) ou changez de framework."
+    }
+  ];
+
+  const form = document.getElementById("config-form");
+  const frameworkSelect = document.getElementById("framework-select");
+  const levelSelect = document.getElementById("level-select");
+  const languagesListbox = document.getElementById("languages-listbox");
+  const languageOptions = Array.from(document.querySelectorAll(".language-option"));
+
+  const frameworkError = document.getElementById("framework-error");
+  const languagesError = document.getElementById("languages-error");
+  const levelError = document.getElementById("level-error");
+  const formMessage = document.getElementById("form-message");
+
+  const resetBtn = document.getElementById("reset-btn");
+
+  // Ensemble des langages actuellement sélectionnés
+  const selectedLanguages = new Set();
+
+  /**
+   * Affiche un message d'erreur sous un champ précis et marque le champ visuellement.
+   */
+  function showFieldError(fieldEl, errorEl, text) {
+    fieldEl.classList.add("field-error-border");
+    errorEl.textContent = text;
+    errorEl.classList.add("visible");
+  }
+
+  /**
+   * Efface le message d'erreur et le style d'un champ précis.
+   */
+  function clearFieldError(fieldEl, errorEl) {
+    fieldEl.classList.remove("field-error-border");
+    errorEl.textContent = "";
+    errorEl.classList.remove("visible");
+  }
+
+  /**
+   * Affiche le message global (succès ou erreur).
+   */
+  function showMessage(text, type) {
+    formMessage.textContent = text;
+    formMessage.className = "";
+    formMessage.classList.add("visible", type);
+  }
+
+  /**
+   * Cache le message global.
+   */
+  function hideMessage() {
+    formMessage.textContent = "";
+    formMessage.className = "";
+  }
+
+  /**
+   * Recherche une combinaison incompatible parmi le framework choisi
+   * et les langages actuellement sélectionnés.
+   * @returns {string|null} Le message d'erreur correspondant, ou null si aucune incompatibilité.
+   */
+  function findIncompatibility() {
+    const framework = frameworkSelect.value;
+
+    for (const combo of INCOMPATIBLE_COMBINATIONS) {
+      if (framework === combo.framework && selectedLanguages.has(combo.language)) {
+        return combo.message;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Bascule la sélection d'un langage (ajout/retrait) et met à jour son style.
+   */
+  function toggleLanguage(optionEl) {
+    const value = optionEl.dataset.value;
+    const isSelected = selectedLanguages.has(value);
+
+    if (isSelected) {
+      selectedLanguages.delete(value);
+      optionEl.classList.remove("selected");
+      optionEl.setAttribute("aria-selected", "false");
+    } else {
+      selectedLanguages.add(value);
+      optionEl.classList.add("selected");
+      optionEl.setAttribute("aria-selected", "true");
+    }
+  }
+
+  languageOptions.forEach((optionEl) => {
+    optionEl.addEventListener("click", () => toggleLanguage(optionEl));
+  });
+
+  /**
+   * Valide l'ensemble du formulaire : champs obligatoires puis règle de compatibilité.
+   * @returns {boolean} true si le formulaire est valide.
+   */
+  function validateForm() {
+    clearFieldError(frameworkSelect, frameworkError);
+    clearFieldError(languagesListbox, languagesError);
+    clearFieldError(levelSelect, levelError);
+
+    let isValid = true;
+
+    if (frameworkSelect.value === "") {
+      showFieldError(frameworkSelect, frameworkError, "Le framework de test est obligatoire.");
+      isValid = false;
+    }
+
+    if (selectedLanguages.size === 0) {
+      showFieldError(languagesListbox, languagesError, "Sélectionnez au moins un langage.");
+      isValid = false;
+    }
+
+    if (levelSelect.value === "") {
+      showFieldError(levelSelect, levelError, "Le niveau est obligatoire.");
+      isValid = false;
+    }
+
+    // La validation croisée ne s'applique que si framework + langages sont déjà renseignés
+    if (isValid) {
+      const incompatibilityMessage = findIncompatibility();
+      if (incompatibilityMessage) {
+        showMessage(incompatibilityMessage, "error");
+        return false;
+      }
+    }
+
+    return isValid;
+  }
+
+  // Soumission du formulaire
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    hideMessage();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    const recap = [
+      `Framework : ${frameworkSelect.value}`,
+      `Langage(s) : ${Array.from(selectedLanguages).join(", ")}`,
+      `Niveau : ${levelSelect.value}`
+    ].join(" — ");
+
+    showMessage(`Configuration enregistrée avec succès ! ${recap}`, "success");
+  });
+
+  // Réinitialisation du formulaire
+  resetBtn.addEventListener("click", () => {
+    frameworkSelect.value = "";
+    levelSelect.value = "";
+
+    selectedLanguages.clear();
+    languageOptions.forEach((optionEl) => {
+      optionEl.classList.remove("selected");
+      optionEl.setAttribute("aria-selected", "false");
+    });
+
+    clearFieldError(frameworkSelect, frameworkError);
+    clearFieldError(languagesListbox, languagesError);
+    clearFieldError(levelSelect, levelError);
+    hideMessage();
+  });
+</script>
+
+</body>
+</html>
