@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 2 — Architecture & conception</title>
+<style>
+  :root{
+    --bg:#0f1220; --panel:#161a2e; --panel2:#1c2140; --text:#e7e9f5; --muted:#a3a8c3;
+    --accent:#7c9fff; --accent2:#8ee6c1; --warn:#ffb15c; --code-bg:#0b0d1a; --border:#2a2f55;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;
+  }
+  header.hero{
+    padding:56px 24px 40px; background:linear-gradient(135deg,#1a1f3d,#141833);
+    border-bottom:1px solid var(--border);
+  }
+  header.hero .tag{
+    display:inline-block; background:var(--panel2); color:var(--accent2);
+    padding:4px 12px; border-radius:20px; font-size:13px; font-weight:600; letter-spacing:.03em;
+  }
+  header.hero h1{ font-size:2.2rem; margin:16px 0 8px; }
+  header.hero p{ color:var(--muted); max-width:760px; font-size:1.05rem; }
+  main{ max-width:860px; margin:0 auto; padding:40px 24px 100px; }
+  nav.toc{
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:20px 24px; margin-bottom:48px;
+  }
+  nav.toc h2{ margin-top:0; font-size:1rem; text-transform:uppercase; letter-spacing:.05em; color:var(--accent2); }
+  nav.toc ol{ margin:0; padding-left:20px; }
+  nav.toc li{ margin:6px 0; }
+  nav.toc a{ color:var(--text); text-decoration:none; }
+  nav.toc a:hover{ color:var(--accent); }
+  section.module{ margin-bottom:64px; padding-top:16px; border-top:1px solid var(--border); }
+  section.module h2{ font-size:1.5rem; margin-bottom:4px; }
+  section.module .module-sub{ color:var(--muted); font-size:.95rem; margin-bottom:28px; }
+  .block{ margin-bottom:24px; }
+  .block h3{
+    font-size:.85rem; text-transform:uppercase; letter-spacing:.06em; margin:0 0 10px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .block h3::before{ content:""; width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .objectif h3::before{ background:var(--accent); }
+  .explication h3::before{ background:#8ea0ff; }
+  .demo h3::before{ background:var(--accent2); }
+  .pratique h3::before{ background:var(--warn); }
+  .approfondissement h3::before{ background:#ff8fa3; }
+  .validation h3::before{ background:#c792ea; }
+  .synthese h3::before{ background:#7dd3fc; }
+  .objectif{ background:var(--panel); border-left:3px solid var(--accent); padding:14px 18px; border-radius:0 8px 8px 0; }
+  .pratique{ background:var(--panel); border:1px dashed var(--warn); padding:16px 20px; border-radius:10px; }
+  .synthese{ background:var(--panel2); padding:16px 20px; border-radius:10px; }
+  pre{
+    background:var(--code-bg); border:1px solid var(--border); border-radius:10px;
+    padding:16px 18px; overflow-x:auto; font-size:.88rem;
+  }
+  code{ font-family:"SF Mono",Consolas,Monaco,"Courier New",monospace; }
+  p code, li code{ background:var(--panel2); padding:1px 6px; border-radius:4px; font-size:.9em; }
+  ul, ol{ padding-left:22px; }
+  li{ margin:6px 0; }
+  .phase-close{
+    margin-top:60px; padding:28px; background:linear-gradient(135deg,var(--panel2),var(--panel));
+    border-radius:14px; border:1px solid var(--border);
+  }
+  .phase-close h2{ margin-top:0; color:var(--accent2); }
+  table{ width:100%; border-collapse:collapse; margin:16px 0; font-size:.92rem; }
+  th,td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); }
+  th{ color:var(--accent2); font-weight:600; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">FORMATION PLAYWRIGHT + TYPESCRIPT</span>
+  <h1>Phase 2 — Architecture & conception</h1>
+  <p>Objectif de la phase : passer de scripts isolés à un vrai projet structuré et maintenable. C'est la phase charnière où tu commences à penser comme un SDET plutôt qu'à empiler des tests.</p>
+</header>
+
+<main>
+  <nav class="toc">
+    <h2>Sommaire</h2>
+    <ol>
+      <li><a href="#m21">Module 2.1 — Organisation d'un projet de tests</a></li>
+      <li><a href="#m22">Module 2.2 — Page Object Model</a></li>
+      <li><a href="#m23">Module 2.3 — Fixtures et hooks</a></li>
+      <li><a href="#m24">Module 2.4 — Données de test et configuration</a></li>
+      <li><a href="#m25">Module 2.5 — Authentification et storage state</a></li>
+      <li><a href="#cloture">Clôture de phase — évaluation intermédiaire</a></li>
+    </ol>
+  </nav>
+
+  <!-- MODULE 2.1 -->
+  <section class="module" id="m21">
+    <h2>Module 2.1 — Organisation d'un projet de tests</h2>
+    <p class="module-sub">Structurer un dossier de tests comme un vrai projet logiciel, pas comme un empilement de scripts.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Mettre en place une arborescence de projet claire (tests, pages, data, utils) et une configuration multi-environnements exploitable en local comme en CI.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>Un projet Playwright qui grossit sans structure devient vite ingérable : locators dupliqués, données codées en dur, tests qui se marchent dessus. La structure standard qui émerge dans la plupart des projets d'entreprise sépare clairement les responsabilités :</p>
+      <pre><code>tests/            → les fichiers .spec.ts, un par fonctionnalité ou parcours
+pages/            → les classes de Page Object (module 2.2)
+fixtures/         → fixtures personnalisées (module 2.3)
+data/             → jeux de données, factories (module 2.4)
+utils/            → fonctions utilitaires partagées (formatage, helpers génériques)
+playwright.config.ts</code></pre>
+      <p>Sur la configuration multi-environnements : plutôt que de coder en dur une URL, on utilise des variables d'environnement (<code>process.env.BASE_URL</code>) injectées différemment selon qu'on exécute en local, en recette ou en CI. Playwright permet aussi de définir plusieurs <code>projects</code> dans la config pour exécuter le même ensemble de tests avec des paramètres différents (ex. un projet "mobile" avec un viewport réduit).</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>// playwright.config.ts
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./tests",
+  use: {
+    baseURL: process.env.BASE_URL ?? "http://localhost:3000",
+    trace: "on-first-retry",
+  },
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "mobile-safari", use: { ...devices["iPhone 13"] } },
+  ],
+});</code></pre>
+      <pre><code># Exécution avec une base URL différente selon l'environnement
+BASE_URL=https://recette.monapp.com npx playwright test
+BASE_URL=http://localhost:3000 npx playwright test</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Réorganise le projet créé en Phase 0/1 selon la structure ci-dessus (<code>tests/</code>, <code>pages/</code>, <code>data/</code>, <code>utils/</code>, même vides pour l'instant sauf <code>tests/</code>).</li>
+        <li>Modifie <code>playwright.config.ts</code> pour lire la <code>baseURL</code> depuis une variable d'environnement, avec une valeur par défaut sensée.</li>
+        <li>Ajoute un second <code>project</code> simulant un affichage mobile et vérifie qu'un test existant passe dans les deux configurations.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> coder l'URL de l'application en dur dans chaque test — le jour où l'environnement de test change (nouveau domaine de recette, environnement de démo), il faut modifier des dizaines de fichiers au lieu d'une seule variable.</li>
+        <li>Ne pas sur-architecturer trop tôt : sur un petit projet, un dossier <code>utils/</code> vide n'a pas de valeur. Créer la structure au fur et à mesure du besoin réel reste préférable à un squelette figé dès le premier jour.</li>
+        <li>En entreprise, les variables sensibles (URLs internes, credentials) transitent via un fichier <code>.env</code> non commité, chargé avec une librairie comme <code>dotenv</code> — approfondi au module 2.4.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Pourquoi sépare-t-on les Page Objects (<code>pages/</code>) des fichiers de test (<code>tests/</code>) ?</li>
+        <li>À quoi sert de définir plusieurs <code>projects</code> dans <code>playwright.config.ts</code> ?</li>
+        <li>Quel est l'intérêt de piloter la <code>baseURL</code> par variable d'environnement plutôt qu'en dur dans le code ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Structure standard : <code>tests/</code>, <code>pages/</code>, <code>fixtures/</code>, <code>data/</code>, <code>utils/</code>.</li>
+        <li>Les variables d'environnement pilotent la configuration selon l'environnement d'exécution.</li>
+        <li>Les <code>projects</code> permettent d'exécuter la même suite de tests dans des contextes différents.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 2.2 -->
+  <section class="module" id="m22">
+    <h2>Module 2.2 — Page Object Model</h2>
+    <p class="module-sub">Le pattern central de tout framework Playwright/TypeScript professionnel.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Concevoir et implémenter des Page Objects en TypeScript, comprendre leurs avantages et leurs limites, et refactoriser un test existant pour l'utiliser.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>Le Page Object Model consiste à encapsuler, pour chaque page (ou composant significatif) de l'application, ses locators et les actions qu'on peut y réaliser, dans une classe TypeScript dédiée. Le test lui-même ne manipule plus de locators bruts : il appelle des méthodes métier comme <code>loginPage.login(email, password)</code>.</p>
+      <p><strong>Avantages :</strong> si un élément change de structure HTML, une seule ligne à corriger (dans le Page Object) au lieu de dizaines de tests. Les tests deviennent aussi plus lisibles : ils décrivent un scénario métier plutôt qu'une suite de manipulations techniques.</p>
+      <p><strong>Limites :</strong> un POM mal conçu peut devenir une couche d'abstraction lourde qui ralentit plus qu'elle n'aide, notamment si les méthodes deviennent trop génériques ou si on encapsule des assertions dans les Page Objects (à éviter en général : les assertions restent dans le test, les Page Objects exposent des données ou des actions, pas des vérifications).</p>
+      <p><strong>Alternative à connaître :</strong> le pattern <em>Screenplay</em>, plus orienté "acteurs et tâches" que "pages", plus adapté aux très gros projets avec des parcours transverses à plusieurs pages. Le POM reste largement suffisant et le standard de facto pour la majorité des projets, y compris en entreprise.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>// pages/LoginPage.ts
+import { Page, Locator } from "@playwright/test";
+
+export class LoginPage {
+  private readonly page: Page;
+  private readonly emailInput: Locator;
+  private readonly passwordInput: Locator;
+  private readonly submitButton: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.emailInput = page.getByLabel("Adresse email");
+    this.passwordInput = page.getByLabel("Mot de passe");
+    this.submitButton = page.getByRole("button", { name: "Se connecter" });
+  }
+
+  async goto(): Promise<void> {
+    await this.page.goto("/login");
+  }
+
+  async login(email: string, password: string): Promise<void> {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    await this.submitButton.click();
+  }
+}</code></pre>
+      <pre><code>// tests/login.spec.ts
+import { test, expect } from "@playwright/test";
+import { LoginPage } from "../pages/LoginPage";
+
+test("connexion réussie avec des identifiants valides", async ({ page }) => {
+  const loginPage = new LoginPage(page);
+
+  await loginPage.goto();
+  await loginPage.login("camille.durand@exemple.com", "MotDePasse123!");
+
+  // L'assertion reste dans le test, pas dans le Page Object
+  await expect(page.getByText("Bienvenue, Camille")).toBeVisible();
+});</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Reprends un test écrit en Phase 1 (par exemple le formulaire d'inscription du module 1.2).</li>
+        <li>Crée une classe Page Object correspondante avec locators privés et méthodes publiques orientées action métier (pas une méthode par champ, mais une méthode qui remplit tout le formulaire d'un coup si cela a du sens).</li>
+        <li>Refactorise le test pour qu'il utilise uniquement le Page Object, sans locator brut restant dans le fichier de test.</li>
+        <li>Vérifie que le test passe toujours après refactorisation.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> mettre des <code>expect()</code> à l'intérieur des méthodes de Page Object. Cela mélange deux responsabilités (agir sur la page / vérifier un résultat) et rend les tests moins lisibles — garder les assertions dans les fichiers de test.</li>
+        <li>Une classe de Page Object trop "chirurgicale" (une méthode par clic individuel) n'apporte pas grand-chose : viser des méthodes qui représentent une intention utilisateur complète (<code>login()</code>, <code>ajouterAuPanier()</code>) plutôt qu'un mapping 1:1 avec chaque élément HTML.</li>
+        <li>Pour des composants réutilisés sur plusieurs pages (un header, une barre de recherche), créer un Page Object de composant à part, injecté ou instancié dans les Page Objects de page qui l'utilisent — évite la duplication.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Pourquoi les assertions ne doivent-elles pas se trouver dans les méthodes d'un Page Object ?</li>
+        <li>Quel est l'avantage principal du POM quand la structure HTML de l'application change ?</li>
+        <li>Dans quel cas envisagerait-on le pattern Screenplay plutôt que le POM classique ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Un Page Object encapsule locators + actions ; les tests appellent des méthodes métier, pas des locators bruts.</li>
+        <li>Les assertions restent dans les tests, jamais dans les Page Objects.</li>
+        <li>Le POM est le standard de facto ; Screenplay est une alternative pour des cas très transverses.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 2.3 -->
+  <section class="module" id="m23">
+    <h2>Module 2.3 — Fixtures et hooks</h2>
+    <p class="module-sub">Factoriser la préparation et le nettoyage des tests de façon réutilisable et typée.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Distinguer les hooks classiques (<code>beforeEach</code>/<code>afterEach</code>) des fixtures personnalisées Playwright, et créer une fixture réutilisable typée pour un besoin récurrent (par exemple un utilisateur déjà authentifié).</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p><strong>Hooks classiques.</strong> <code>test.beforeEach()</code> et <code>test.afterEach()</code> exécutent du code avant/après chaque test d'un fichier ou d'un <code>describe</code>. Simples et suffisants pour une préparation locale à un fichier de tests.</p>
+      <p><strong>Fixtures Playwright.</strong> Plus puissantes : une fixture est une valeur ou un objet préparé automatiquement et injecté dans les tests qui la déclarent en paramètre, avec gestion automatique de sa création et de son nettoyage. Playwright fournit des fixtures natives (<code>page</code>, <code>context</code>, <code>browser</code>), et on peut créer les siennes en étendant <code>test</code> via <code>test.extend()</code>.</p>
+      <p>L'avantage des fixtures personnalisées sur de simples hooks : elles sont typées, réutilisables sur tout le projet (pas seulement un fichier), composables entre elles, et ne s'exécutent que si le test les demande réellement — un gain de performance sur de gros projets où tous les tests n'ont pas besoin des mêmes préparations.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>// fixtures/auth.fixture.ts
+import { test as base } from "@playwright/test";
+import { LoginPage } from "../pages/LoginPage";
+
+type AuthFixtures = {
+  utilisateurConnecte: void;
+};
+
+export const test = base.extend&lt;AuthFixtures&gt;({
+  utilisateurConnecte: async ({ page }, use) => {
+    // Préparation (équivalent d'un beforeEach, mais réutilisable et typé)
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login("camille.durand@exemple.com", "MotDePasse123!");
+
+    await use(); // le test s'exécute ici
+
+    // Nettoyage éventuel après le test (équivalent d'un afterEach)
+  },
+});
+
+export { expect } from "@playwright/test";</code></pre>
+      <pre><code>// tests/panier.spec.ts
+import { test, expect } from "../fixtures/auth.fixture";
+
+test("un utilisateur connecté peut ajouter un article au panier", async ({
+  page,
+  utilisateurConnecte, // déclenche automatiquement la connexion avant le test
+}) => {
+  await page.goto("/produits/123");
+  await page.getByRole("button", { name: "Ajouter au panier" }).click();
+
+  await expect(page.getByTestId("cart-count")).toHaveText("1");
+});</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Crée une fixture <code>utilisateurConnecte</code> comme dans l'exemple, en l'adaptant à ton projet fil rouge.</li>
+        <li>Écris deux tests différents qui utilisent cette fixture et vérifie qu'aucun des deux ne duplique la logique de connexion.</li>
+        <li>Compare mentalement (ou par écrit) ce que tu aurais dû écrire avec un simple <code>beforeEach</code> à la place — identifie ce que tu perdrais en réutilisabilité entre plusieurs fichiers de test.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> créer une fixture pour absolument tout, y compris des préparations utilisées une seule fois — un <code>beforeEach</code> local suffit dans ce cas, la fixture personnalisée se justifie surtout par le partage entre plusieurs fichiers de tests.</li>
+        <li>Les fixtures peuvent dépendre d'autres fixtures (composition), ce qui permet de construire des scénarios de préparation complexes tout en gardant chaque fixture simple et testée isolément.</li>
+        <li>Le mot-clé <code>use()</code> à l'intérieur d'une fixture est le point de passage obligé : tout le code avant est la préparation, tout le code après (s'il y en a) est le nettoyage exécuté même si le test échoue.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Quelle est la différence principale entre un <code>beforeEach</code> classique et une fixture personnalisée Playwright ?</li>
+        <li>À quoi sert précisément l'appel à <code>use()</code> dans la définition d'une fixture ?</li>
+        <li>Dans quel cas un simple hook reste-t-il préférable à une fixture personnalisée ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Hooks (<code>beforeEach</code>/<code>afterEach</code>) pour une préparation locale à un fichier.</li>
+        <li>Fixtures personnalisées (<code>test.extend()</code>) pour une préparation typée, réutilisable et composable sur tout le projet.</li>
+        <li><code>use()</code> sépare la phase de préparation de la phase de nettoyage d'une fixture.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 2.4 -->
+  <section class="module" id="m24">
+    <h2>Module 2.4 — Données de test et configuration</h2>
+    <p class="module-sub">Jeux de données, secrets, et paramétrage de tests — sans jamais commiter de credentials.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Externaliser les données de test (JSON, factories) et les secrets (variables d'environnement) hors du code des tests, et paramétrer un même test avec plusieurs jeux de données.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p><strong>Données statiques vs générées.</strong> Pour des données stables et prévisibles (un compte de test toujours identique), un fichier JSON dans <code>data/</code> suffit. Pour des données qui doivent être uniques à chaque exécution (éviter les conflits, par exemple créer un compte avec un email déjà pris), on utilise une librairie de génération comme <code>@faker-js/faker</code>, souvent via une fonction "factory" qui construit un objet de test avec des valeurs aléatoires mais cohérentes.</p>
+      <p><strong>Paramétrer un test.</strong> Plutôt que dupliquer un test pour chaque jeu de données, on boucle sur un tableau de cas et on génère un test par entrée — chacun apparaît séparément dans le rapport, ce qui facilite le diagnostic si un seul cas échoue.</p>
+      <p><strong>Secrets et configuration.</strong> Les credentials, tokens ou clés d'API ne doivent jamais apparaître en dur dans le code ni être commités. On les place dans un fichier <code>.env</code> (ajouté au <code>.gitignore</code> dès la Phase 0), chargé via <code>dotenv</code>, et on documente dans un <code>.env.example</code> (commité, lui) les variables attendues sans leurs valeurs réelles — pratique standard pour que l'équipe sache quoi configurer sans exposer de secret.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>// data/utilisateurs.json
+[
+  { "email": "admin@exemple.com", "role": "admin" },
+  { "email": "viewer@exemple.com", "role": "viewer" }
+]</code></pre>
+      <pre><code>// tests/permissions.spec.ts
+import { test, expect } from "@playwright/test";
+import utilisateurs from "../data/utilisateurs.json";
+
+for (const utilisateur of utilisateurs) {
+  test(`accès au tableau de bord pour le rôle ${utilisateur.role}`, async ({ page }) => {
+    await page.goto("/login");
+    // ... connexion avec utilisateur.email
+    // ... assertions spécifiques au rôle
+  });
+}</code></pre>
+      <pre><code>// .env (jamais commité)
+BASE_URL=https://recette.monapp.com
+API_TOKEN=abc123secret
+
+// .env.example (commité, sert de documentation)
+BASE_URL=
+API_TOKEN=</code></pre>
+      <pre><code>// data/factories/utilisateur.factory.ts
+import { faker } from "@faker-js/faker";
+
+export function creerUtilisateurAleatoire() {
+  return {
+    email: faker.internet.email(),
+    motDePasse: faker.internet.password({ length: 12 }),
+    nom: faker.person.fullName(),
+  };
+}</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Crée un fichier <code>data/utilisateurs.json</code> avec au moins 3 profils différents pour ton projet fil rouge.</li>
+        <li>Écris un test paramétré qui boucle sur ces profils et vérifie un comportement différent selon le rôle.</li>
+        <li>Installe <code>@faker-js/faker</code> et écris une factory qui génère un utilisateur avec un email unique à chaque exécution — utile pour un test de création de compte qui ne doit jamais entrer en conflit.</li>
+        <li>Mets en place un fichier <code>.env</code> et <code>.env.example</code>, vérifie que <code>.env</code> est bien ignoré par Git.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège grave et fréquent :</strong> commiter un token ou mot de passe réel "juste pour tester rapidement" — même supprimé ensuite, il reste dans l'historique Git. Toujours passer par <code>.env</code> dès le premier usage d'un secret.</li>
+        <li>Des données générées aléatoirement (faker) sont idéales pour la création, mais rendent le debug moins prévisible — pour des scénarios de lecture/vérification d'un état connu, préférer des données statiques et stables.</li>
+        <li>En CI, les secrets sont injectés différemment (variables d'environnement du pipeline, vault) — approfondi en Phase 4 ; le principe reste le même : jamais en dur dans le code.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Pourquoi ne suffit-il pas de supprimer un secret commité par erreur pour le sécuriser à nouveau ?</li>
+        <li>Dans quel cas préfère-t-on des données statiques à des données générées aléatoirement ?</li>
+        <li>À quoi sert un fichier <code>.env.example</code> commité alors que <code>.env</code> ne l'est pas ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Données statiques (JSON) pour des cas stables, factories (faker) pour des données uniques à chaque run.</li>
+        <li>Boucler sur un tableau de données génère un test distinct par cas dans le rapport.</li>
+        <li>Secrets toujours via <code>.env</code> non commité, jamais en dur dans le code.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 2.5 -->
+  <section class="module" id="m25">
+    <h2>Module 2.5 — Authentification et storage state</h2>
+    <p class="module-sub">Éviter de se reconnecter à chaque test, et gérer plusieurs rôles utilisateurs efficacement.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Mettre en place une authentification une seule fois, réutilisée par tous les tests qui en ont besoin, avec une gestion propre de plusieurs rôles utilisateurs différents.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>Se reconnecter via l'UI au début de chaque test (comme fait la fixture du module 2.3) fonctionne, mais ralentit l'ensemble de la suite si des dizaines de tests en ont besoin. Playwright propose un mécanisme dédié : <code>storageState</code>, qui sauvegarde l'état d'authentification (cookies, local storage) dans un fichier JSON après une connexion réussie, puis le réinjecte directement dans les tests suivants sans repasser par le formulaire de connexion.</p>
+      <p>La pratique standard consiste à créer un fichier de "setup" exécuté une seule fois avant la suite de tests (via un <code>project</code> dédié en dépendance dans <code>playwright.config.ts</code>), qui se connecte et sauvegarde le <code>storageState</code>. Les autres projets déclarent alors ce fichier comme état de départ.</p>
+      <p><strong>Plusieurs rôles.</strong> Pour tester différents niveaux de permission (admin, utilisateur standard, invité), on répète ce principe avec un fichier de storage state distinct par rôle, et on choisit lequel charger selon le test ou le project concerné.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>// tests/auth.setup.ts
+import { test as setup } from "@playwright/test";
+import { LoginPage } from "../pages/LoginPage";
+
+const adminFile = "playwright/.auth/admin.json";
+
+setup("authentification admin", async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  await loginPage.goto();
+  await loginPage.login("admin@exemple.com", "MotDePasseAdmin123!");
+
+  await page.context().storageState({ path: adminFile });
+});</code></pre>
+      <pre><code>// playwright.config.ts (extrait)
+export default defineConfig({
+  projects: [
+    { name: "setup", testMatch: /.*\.setup\.ts/ },
+    {
+      name: "chromium-admin",
+      use: { storageState: "playwright/.auth/admin.json" },
+      dependencies: ["setup"], // le setup s'exécute avant ce project
+    },
+  ],
+});</code></pre>
+      <pre><code>// tests/dashboard-admin.spec.ts
+import { test, expect } from "@playwright/test";
+
+// Pas de connexion ici : le storageState est déjà chargé
+test("un admin voit le panneau de gestion des utilisateurs", async ({ page }) => {
+  await page.goto("/dashboard");
+  await expect(page.getByRole("link", { name: "Gestion des utilisateurs" })).toBeVisible();
+});</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Crée un fichier <code>auth.setup.ts</code> pour ton projet fil rouge qui se connecte et sauvegarde un <code>storageState</code>.</li>
+        <li>Configure un <code>project</code> dédié qui dépend de ce setup et charge le <code>storageState</code> sauvegardé.</li>
+        <li>Écris un test qui vérifie qu'il est bien connecté d'entrée de jeu, sans aucune étape de login dans le test lui-même.</li>
+        <li>Si ton application distingue plusieurs rôles, répète l'opération pour un second rôle et écris un test qui vérifie qu'un droit d'accès diffère entre les deux.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> commiter les fichiers de <code>storageState</code> générés (<code>playwright/.auth/*.json</code>) — ils contiennent des cookies de session réels et doivent être ajoutés au <code>.gitignore</code>, tout comme <code>.env</code>.</li>
+        <li>Le <code>storageState</code> a une durée de vie liée à la session côté application : si les tokens expirent rapidement, le setup doit s'exécuter à une fréquence adaptée (à chaque run reste le plus sûr et le plus simple par défaut).</li>
+        <li>Cette approche ne convient pas à un scénario qui teste explicitement le processus de connexion lui-même (formulaire, erreurs de credentials) — ce cas continue logiquement à passer par l'UI, comme vu en Phase 1.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Quel problème concret <code>storageState</code> résout-il par rapport à une reconnexion systématique via l'UI ?</li>
+        <li>Pourquoi ne faut-il jamais commiter les fichiers de <code>storageState</code> générés ?</li>
+        <li>Dans quel cas un test doit-il malgré tout continuer à passer par le formulaire de connexion plutôt que d'utiliser un <code>storageState</code> préexistant ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li><code>storageState</code> évite de repasser par l'UI de connexion à chaque test.</li>
+        <li>Un fichier de setup dédié, exécuté en dépendance d'un <code>project</code>, génère cet état une seule fois.</li>
+        <li>Plusieurs rôles = plusieurs fichiers de <code>storageState</code>, jamais commités.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="phase-close" id="cloture">
+    <h2>Clôture de la Phase 2 — évaluation pratique intermédiaire</h2>
+    <p>Évaluation pratique intermédiaire : à partir d'une spec fonctionnelle donnée, reconstruire une partie du framework fil rouge avec POM, fixtures personnalisées et storage state, sans reproduire les erreurs vues aux modules précédents (assertions dans les Page Objects, secrets en dur, reconnexion systématique par UI).</p>
+    <table>
+      <tr><th>Critère</th><th>Attendu pour valider la phase</th></tr>
+      <tr><td>Architecture</td><td>Structure de projet claire, aucun locator brut dans les fichiers de test</td></tr>
+      <tr><td>POM</td><td>Classes typées, assertions absentes des Page Objects</td></tr>
+      <tr><td>Fixtures</td><td>Au moins une fixture personnalisée réutilisée sur plusieurs tests</td></tr>
+      <tr><td>Auth</td><td>Authentification via <code>storageState</code>, aucun secret commité</td></tr>
+    </table>
+    <p>Une fois ces critères validés, on démarre la Phase 3 — Automatisation avancée.</p>
+  </div>
+</main>
+
+</body>
+</html>

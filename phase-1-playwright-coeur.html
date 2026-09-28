@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 1 — Playwright cœur</title>
+<style>
+  :root{
+    --bg:#0f1220; --panel:#161a2e; --panel2:#1c2140; --text:#e7e9f5; --muted:#a3a8c3;
+    --accent:#7c9fff; --accent2:#8ee6c1; --warn:#ffb15c; --code-bg:#0b0d1a; --border:#2a2f55;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;
+  }
+  header.hero{
+    padding:56px 24px 40px; background:linear-gradient(135deg,#1a1f3d,#141833);
+    border-bottom:1px solid var(--border);
+  }
+  header.hero .tag{
+    display:inline-block; background:var(--panel2); color:var(--accent2);
+    padding:4px 12px; border-radius:20px; font-size:13px; font-weight:600; letter-spacing:.03em;
+  }
+  header.hero h1{ font-size:2.2rem; margin:16px 0 8px; }
+  header.hero p{ color:var(--muted); max-width:760px; font-size:1.05rem; }
+  main{ max-width:860px; margin:0 auto; padding:40px 24px 100px; }
+  nav.toc{
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:20px 24px; margin-bottom:48px;
+  }
+  nav.toc h2{ margin-top:0; font-size:1rem; text-transform:uppercase; letter-spacing:.05em; color:var(--accent2); }
+  nav.toc ol{ margin:0; padding-left:20px; }
+  nav.toc li{ margin:6px 0; }
+  nav.toc a{ color:var(--text); text-decoration:none; }
+  nav.toc a:hover{ color:var(--accent); }
+  section.module{ margin-bottom:64px; padding-top:16px; border-top:1px solid var(--border); }
+  section.module h2{ font-size:1.5rem; margin-bottom:4px; }
+  section.module .module-sub{ color:var(--muted); font-size:.95rem; margin-bottom:28px; }
+  .block{ margin-bottom:24px; }
+  .block h3{
+    font-size:.85rem; text-transform:uppercase; letter-spacing:.06em; margin:0 0 10px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .block h3::before{ content:""; width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .objectif h3::before{ background:var(--accent); }
+  .explication h3::before{ background:#8ea0ff; }
+  .demo h3::before{ background:var(--accent2); }
+  .pratique h3::before{ background:var(--warn); }
+  .approfondissement h3::before{ background:#ff8fa3; }
+  .validation h3::before{ background:#c792ea; }
+  .synthese h3::before{ background:#7dd3fc; }
+  .objectif{ background:var(--panel); border-left:3px solid var(--accent); padding:14px 18px; border-radius:0 8px 8px 0; }
+  .pratique{ background:var(--panel); border:1px dashed var(--warn); padding:16px 20px; border-radius:10px; }
+  .synthese{ background:var(--panel2); padding:16px 20px; border-radius:10px; }
+  pre{
+    background:var(--code-bg); border:1px solid var(--border); border-radius:10px;
+    padding:16px 18px; overflow-x:auto; font-size:.88rem;
+  }
+  code{ font-family:"SF Mono",Consolas,Monaco,"Courier New",monospace; }
+  p code, li code{ background:var(--panel2); padding:1px 6px; border-radius:4px; font-size:.9em; }
+  ul, ol{ padding-left:22px; }
+  li{ margin:6px 0; }
+  .phase-close{
+    margin-top:60px; padding:28px; background:linear-gradient(135deg,var(--panel2),var(--panel));
+    border-radius:14px; border:1px solid var(--border);
+  }
+  .phase-close h2{ margin-top:0; color:var(--accent2); }
+  table{ width:100%; border-collapse:collapse; margin:16px 0; font-size:.92rem; }
+  th,td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); }
+  th{ color:var(--accent2); font-weight:600; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">FORMATION PLAYWRIGHT + TYPESCRIPT</span>
+  <h1>Phase 1 — Playwright cœur</h1>
+  <p>Objectif de la phase : écrire des tests UI fiables de bout en bout — locators, interactions, assertions, navigation complexe et debugging — sans encore se soucier d'architecture. L'architecture, c'est la Phase 2.</p>
+</header>
+
+<main>
+  <nav class="toc">
+    <h2>Sommaire</h2>
+    <ol>
+      <li><a href="#m11">Module 1.1 — Locators et stratégies de sélection</a></li>
+      <li><a href="#m12">Module 1.2 — Interactions et formulaires</a></li>
+      <li><a href="#m13">Module 1.3 — Assertions et synchronisation</a></li>
+      <li><a href="#m14">Module 1.4 — Navigation avancée</a></li>
+      <li><a href="#m15">Module 1.5 — Debug et rapports</a></li>
+      <li><a href="#cloture">Clôture de phase — validation</a></li>
+    </ol>
+  </nav>
+
+  <!-- MODULE 1.1 -->
+  <section class="module" id="m11">
+    <h2>Module 1.1 — Locators et stratégies de sélection</h2>
+    <p class="module-sub">La base de tout : comment Playwright trouve les éléments sur une page.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Choisir et écrire le bon locator pour n'importe quel élément d'une page, en priorisant les locators orientés utilisateur plutôt que des sélecteurs techniques fragiles.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>Playwright a une philosophie différente de Selenium sur ce point : plutôt que de cibler des éléments par leur structure HTML (CSS/XPath), il encourage à cibler ce qu'un <em>utilisateur</em> percevrait — un rôle, un texte visible, un label. C'est ce qu'on appelle les locators "user-facing". Ils sont plus lisibles et beaucoup plus résistants aux changements de structure du code (un développeur qui renomme une classe CSS ne casse pas le test).</p>
+      <p>Les locators principaux, par ordre de préférence : <code>getByRole</code> (le plus robuste — cible par rôle ARIA et nom accessible, ex. un bouton nommé "Valider"), <code>getByLabel</code> (pour les champs de formulaire associés à un label), <code>getByText</code> (pour du texte visible), <code>getByTestId</code> (quand aucune des options précédentes n'est fiable, on cible un attribut <code>data-testid</code> ajouté spécifiquement pour les tests).</p>
+      <p>Les locators sont "paresseux" (lazy) : les créer ne cherche rien dans la page tant qu'on n'exécute pas une action ou une assertion dessus. Cela permet de les chaîner et de les filtrer, par exemple pour cibler un élément précis dans une liste de résultats similaires.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>import { test, expect } from "@playwright/test";
+
+test("locators de base", async ({ page }) => {
+  await page.goto("https://example.com/login");
+
+  // Par rôle : le plus robuste, recommandé en priorité
+  await page.getByRole("button", { name: "Se connecter" }).click();
+
+  // Par label associé à un champ
+  await page.getByLabel("Adresse email").fill("test@exemple.com");
+
+  // Par texte visible
+  await page.getByText("Mot de passe oublié ?").click();
+
+  // Chaînage et filtrage : cibler une ligne précise dans une liste
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: "Produit A" })
+    .getByRole("button", { name: "Ajouter au panier" })
+    .click();
+
+  // En dernier recours seulement : data-testid
+  await page.getByTestId("cart-total").click();
+});</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Ouvre une page web publique de ton choix (un site e-commerce par exemple) et, via les outils de développement du navigateur, identifie 5 éléments différents (un bouton, un champ de saisie, un lien, un titre, un élément dans une liste).</li>
+        <li>Pour chacun, écris le locator Playwright le plus robuste possible sans utiliser <code>getByTestId</code> si une meilleure option existe.</li>
+        <li>Si deux éléments ont le même texte visible, utilise <code>.filter()</code> ou <code>.first()</code>/<code>.nth()</code> pour lever l'ambiguïté et explique pourquoi ton choix est préférable à un simple <code>.first()</code> "au hasard".</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> utiliser des sélecteurs CSS basés sur des classes générées automatiquement (ex. <code>.css-1a2b3c</code>) — ils changent à chaque build et rendent les tests fragiles dès le premier déploiement.</li>
+        <li>Si l'application ne propose aucun élément identifiable proprement, c'est un signal à remonter à l'équipe de développement : demander l'ajout d'un <code>data-testid</code> ou d'un attribut ARIA est une pratique QA légitime et courante.</li>
+        <li>Un locator qui matche plusieurs éléments ne lève pas d'erreur à sa création, mais seulement au moment de l'action — un comportement à bien comprendre pour ne pas être surpris en debug.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Pourquoi <code>getByRole</code> est-il en général préféré à un sélecteur CSS ?</li>
+        <li>Dans quel cas légitime utilise-t-on <code>getByTestId</code> ?</li>
+        <li>Que se passe-t-il si un locator matche plusieurs éléments au moment d'un <code>.click()</code> ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Priorité : <code>getByRole</code> &gt; <code>getByLabel</code> &gt; <code>getByText</code> &gt; <code>getByTestId</code> en dernier recours.</li>
+        <li>Les locators sont paresseux et chaînables/filtrables.</li>
+        <li>Un bon locator résiste aux changements de structure HTML, pas seulement au contenu visible aujourd'hui.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 1.2 -->
+  <section class="module" id="m12">
+    <h2>Module 1.2 — Interactions et formulaires</h2>
+    <p class="module-sub">Cliquer, saisir, cocher, sélectionner, uploader — automatiser un parcours utilisateur complet.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Automatiser n'importe quel formulaire web courant : champs texte, cases à cocher, boutons radio, menus déroulants, upload de fichiers, y compris sur plusieurs étapes.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>Chaque type d'élément a sa méthode dédiée : <code>.fill()</code> pour un champ texte (vide le champ puis tape la valeur d'un coup, contrairement à <code>.type()</code> qui simule une frappe touche par touche — <code>.fill()</code> est à privilégier sauf besoin spécifique de déclencher des événements clavier), <code>.check()</code>/<code>.uncheck()</code> pour les cases à cocher, <code>.selectOption()</code> pour les menus déroulants natifs (<code>&lt;select&gt;</code>), <code>.setInputFiles()</code> pour l'upload.</p>
+      <p>Pour un formulaire multi-étapes (wizard), le principe reste le même : on interagit avec chaque étape puis on attend que l'étape suivante soit visible avant de continuer — Playwright gère cette attente automatiquement grâce à l'auto-waiting (approfondi au module 1.3), il n'y a donc généralement pas besoin d'attente manuelle entre les étapes.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>import { test, expect } from "@playwright/test";
+
+test("formulaire d'inscription complet", async ({ page }) => {
+  await page.goto("https://example.com/inscription");
+
+  await page.getByLabel("Prénom").fill("Camille");
+  await page.getByLabel("Nom").fill("Durand");
+  await page.getByLabel("Email").fill("camille.durand@exemple.com");
+
+  // Case à cocher
+  await page.getByLabel("J'accepte les conditions générales").check();
+
+  // Bouton radio
+  await page.getByLabel("Homme").check();
+
+  // Menu déroulant natif
+  await page.getByLabel("Pays").selectOption("France");
+
+  // Upload de fichier
+  await page.getByLabel("Photo de profil").setInputFiles("fixtures/avatar.png");
+
+  await page.getByRole("button", { name: "Créer mon compte" }).click();
+
+  await expect(page.getByText("Bienvenue, Camille")).toBeVisible();
+});</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Trouve (ou utilise <a href="https://demoqa.com/automation-practice-form" target="_blank" rel="noopener">demoqa.com/automation-practice-form</a>) un formulaire public comportant au moins : champs texte, boutons radio, cases à cocher et un menu déroulant.</li>
+        <li>Écris un test qui remplit l'intégralité du formulaire et le soumet.</li>
+        <li>Ajoute une assertion qui vérifie qu'un message de confirmation apparaît après soumission.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> utiliser <code>.type()</code> par habitude (venant de Selenium) alors que <code>.fill()</code> est plus rapide et suffisant dans l'immense majorité des cas — ne réserver <code>.pressSequentially()</code> qu'aux cas où l'application réagit réellement à chaque frappe (ex. autocomplétion en temps réel).</li>
+        <li>Pour les menus déroulants personnalisés (non-natifs, construits en div/JS), <code>.selectOption()</code> ne fonctionne pas : il faut cliquer pour ouvrir le menu puis cliquer sur l'option comme un utilisateur le ferait.</li>
+        <li>Toujours vérifier le résultat d'une soumission de formulaire (message de succès, redirection, apparition d'un élément) — un formulaire qui "semble" rempli et soumis sans vérification ne prouve rien.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Quelle est la différence entre <code>.fill()</code> et <code>.pressSequentially()</code>, et quand utiliser chacun ?</li>
+        <li>Pourquoi <code>.selectOption()</code> ne fonctionne-t-il pas sur un menu déroulant personnalisé en JavaScript ?</li>
+        <li>Pourquoi faut-il toujours vérifier le résultat après soumission d'un formulaire ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Une méthode dédiée par type d'élément : <code>.fill()</code>, <code>.check()</code>, <code>.selectOption()</code>, <code>.setInputFiles()</code>.</li>
+        <li>Les formulaires multi-étapes se traitent séquentiellement grâce à l'auto-waiting.</li>
+        <li>Toute soumission de formulaire se conclut par une assertion sur le résultat, jamais par la seule action.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 1.3 -->
+  <section class="module" id="m13">
+    <h2>Module 1.3 — Assertions et synchronisation</h2>
+    <p class="module-sub">Comprendre l'auto-waiting : le mécanisme qui rend Playwright fiable par défaut.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Utiliser correctement les assertions "web-first" de Playwright et comprendre précisément ce que l'auto-waiting fait — et ne fait pas — pour savoir quand une attente explicite reste nécessaire.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>Les assertions Playwright (<code>expect(locator).toBeVisible()</code>, <code>.toHaveText()</code>, <code>.toHaveValue()</code>, etc.) sont dites "web-first" : elles réessaient automatiquement pendant un délai configurable (par défaut 5 secondes) jusqu'à ce que la condition soit vraie, ou échouent si le délai est dépassé. C'est fondamentalement différent d'une assertion classique qui vérifie une valeur figée à un instant T.</p>
+      <p>De la même manière, les actions (<code>.click()</code>, <code>.fill()</code>...) attendent automatiquement que l'élément soit "actionnable" : présent dans le DOM, visible, stable (pas en cours d'animation), non désactivé, et qui reçoit bien les événements (pas masqué par un autre élément). C'est ce mécanisme — l'auto-waiting — qui rend inutiles la plupart des <code>sleep()</code> ou <code>wait()</code> explicites qu'on trouve dans d'autres frameworks.</p>
+      <p>L'auto-waiting ne résout cependant pas tout : il attend qu'un élément soit prêt, mais ne "sait" pas qu'une requête réseau spécifique doit se terminer avant qu'une action ait un sens métier. Dans ces cas précis (attendre une réponse API, un événement réseau particulier), une attente explicite via <code>page.waitForResponse()</code> ou <code>page.waitForLoadState()</code> reste justifiée — mais elle doit rester l'exception, pas le réflexe.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>import { test, expect } from "@playwright/test";
+
+test("assertions web-first et contenu dynamique", async ({ page }) => {
+  await page.goto("https://example.com/produits");
+
+  // Assertion classique sur un état stable
+  await expect(page.getByRole("heading", { name: "Nos produits" })).toBeVisible();
+
+  // Contenu chargé de façon asynchrone (ex. via une requête API après clic)
+  await page.getByRole("button", { name: "Charger plus" }).click();
+
+  // L'assertion réessaie automatiquement jusqu'à 5s : pas besoin de sleep ici
+  await expect(page.getByText("24 produits affichés")).toBeVisible();
+
+  // Cas où une attente explicite reste justifiée : une requête réseau précise
+  const responsePromise = page.waitForResponse(
+    resp => resp.url().includes("/api/panier") && resp.status() === 200
+  );
+  await page.getByRole("button", { name: "Ajouter au panier" }).click();
+  await responsePromise;
+
+  await expect(page.getByTestId("cart-count")).toHaveText("1");
+});</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Trouve une page avec du contenu qui se charge après un délai ou une action (spinner, chargement infini, filtre appliqué dynamiquement).</li>
+        <li>Écris un test qui déclenche ce chargement puis vérifie le résultat final avec une assertion web-first, <strong>sans aucun <code>waitForTimeout</code></strong>.</li>
+        <li>Identifie ensuite un cas (réel ou imaginé) où une attente explicite sur une réponse réseau serait justifiée, et écris le code correspondant.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent et grave :</strong> ajouter des <code>page.waitForTimeout(3000)</code> "au cas où" — cela ralentit inutilement les tests quand ce n'est pas nécessaire, et ne les rend pas fiables pour autant quand ce l'est vraiment (le délai fixe peut toujours être trop court sur un environnement plus lent, comme la CI).</li>
+        <li>Si un test échoue par intermittence malgré l'auto-waiting, la cause est souvent ailleurs : une assertion qui vérifie le mauvais élément, une action qui a un effet de bord non attendu, ou une vraie race condition réseau — creusé en profondeur en Phase 3 (flaky tests).</li>
+        <li>Le délai par défaut de 5 secondes se configure globalement (<code>expect.timeout</code> dans <code>playwright.config.ts</code>) ou localement par assertion — à ajuster avec parcimonie, pas comme solution de facilité.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Qu'est-ce qui rend une assertion Playwright "web-first", et en quoi diffère-t-elle d'une assertion classique ?</li>
+        <li>Cite trois conditions que Playwright vérifie automatiquement avant d'exécuter un <code>.click()</code>.</li>
+        <li>Pourquoi <code>page.waitForTimeout()</code> est-il considéré comme un anti-pattern à éviter par défaut ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Actions et assertions réessaient automatiquement — c'est le mécanisme central de fiabilité de Playwright.</li>
+        <li>Les attentes explicites (<code>waitForResponse</code>, etc.) restent justifiées pour des conditions métier précises, jamais comme filet de sécurité générique.</li>
+        <li><code>waitForTimeout</code> est un anti-pattern à éviter presque systématiquement.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 1.4 -->
+  <section class="module" id="m14">
+    <h2>Module 1.4 — Navigation avancée</h2>
+    <p class="module-sub">Onglets, popups, iframes, téléchargements, dialogues natifs.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Gérer les scénarios de navigation qui sortent d'une simple page unique : ouverture de nouveaux onglets, popups d'authentification, contenus dans des iframes, téléchargements de fichiers et boîtes de dialogue natives du navigateur.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p><strong>Onglets et popups.</strong> Chaque onglet ou fenêtre est représenté par un objet <code>page</code> distinct dans Playwright, rattaché au même <code>context</code> (le "profil navigateur" de la session de test). Pour capturer une nouvelle page qui s'ouvre suite à une action (ex. un lien <code>target="_blank"</code>), on écoute l'événement <code>context.waitForEvent("page")</code> en même temps qu'on déclenche l'action.</p>
+      <p><strong>iframes.</strong> Un iframe est une page HTML imbriquée dans une autre — fréquent pour les widgets de paiement ou les formulaires tiers. Playwright y accède via <code>page.frameLocator()</code>, qui fonctionne ensuite exactement comme un locator classique à l'intérieur du cadre.</p>
+      <p><strong>Téléchargements.</strong> On capture un téléchargement de la même façon qu'un nouvel onglet : en écoutant l'événement <code>page.waitForEvent("download")</code> autour de l'action qui le déclenche, puis en récupérant le fichier via l'objet <code>download</code> retourné.</p>
+      <p><strong>Dialogues natifs.</strong> Les <code>alert()</code>, <code>confirm()</code> et <code>prompt()</code> du navigateur bloquent l'exécution tant qu'ils ne sont pas traités : on écoute l'événement <code>page.on("dialog", ...)</code> pour les accepter ou les rejeter automatiquement.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>import { test, expect } from "@playwright/test";
+
+test("ouverture d'un nouvel onglet (paiement externe)", async ({ page, context }) => {
+  await page.goto("https://example.com/commande");
+
+  const [popup] = await Promise.all([
+    context.waitForEvent("page"),
+    page.getByRole("link", { name: "Payer via PaymentCo" }).click(),
+  ]);
+
+  await popup.waitForLoadState();
+  await expect(popup.getByRole("heading", { name: "Paiement sécurisé" })).toBeVisible();
+});
+
+test("interaction avec un iframe", async ({ page }) => {
+  await page.goto("https://example.com/paiement");
+
+  const cardFrame = page.frameLocator("iframe[title='Formulaire carte bancaire']");
+  await cardFrame.getByLabel("Numéro de carte").fill("4242424242424242");
+});
+
+test("gestion d'un dialogue de confirmation natif", async ({ page }) => {
+  page.on("dialog", dialog => dialog.accept());
+
+  await page.goto("https://example.com/compte");
+  await page.getByRole("button", { name: "Supprimer mon compte" }).click();
+  // Le dialog "Êtes-vous sûr ?" est automatiquement accepté
+});
+
+test("téléchargement d'un fichier", async ({ page }) => {
+  await page.goto("https://example.com/factures");
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("button", { name: "Télécharger la facture" }).click(),
+  ]);
+
+  await download.saveAs("downloads/" + download.suggestedFilename());
+});</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <p>Sur le projet fil rouge (e-commerce/back-office) ou un site public équivalent :</p>
+      <ol>
+        <li>Écris un scénario qui déclenche l'ouverture d'un nouvel onglet et vérifie du contenu dessus.</li>
+        <li>Si le site utilise des dialogues natifs (ou simule-le avec une page de test simple contenant un bouton <code>onclick="confirm(...)"</code>), écris un test qui les gère automatiquement.</li>
+        <li>Documente en commentaire, pour chaque cas, quel événement Playwright tu écoutes et pourquoi.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> oublier <code>Promise.all()</code> autour de l'écoute d'événement et de l'action qui le déclenche. Si on les exécute l'un après l'autre au lieu de simultanément, on risque de rater l'événement (race condition classique).</li>
+        <li>Un iframe imbriqué dans un autre iframe nécessite de chaîner les <code>frameLocator()</code> — rare mais à savoir identifier si ça se présente.</li>
+        <li>Sans gestionnaire <code>page.on("dialog", ...)</code>, Playwright rejette automatiquement les dialogues natifs par défaut : un test peut donc échouer silencieusement de façon inattendue si ce point est ignoré.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Pourquoi utilise-t-on <code>Promise.all()</code> pour capturer un nouvel onglet plutôt que d'attendre après avoir cliqué ?</li>
+        <li>Comment accède-t-on à un élément situé à l'intérieur d'un iframe ?</li>
+        <li>Que se passe-t-il par défaut avec un dialogue natif si aucun gestionnaire <code>page.on("dialog")</code> n'est défini ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Nouvel onglet, popup et téléchargement se capturent tous via un événement écouté en parallèle de l'action qui le déclenche.</li>
+        <li><code>frameLocator()</code> donne accès au contenu d'un iframe comme s'il s'agissait d'une page normale.</li>
+        <li>Les dialogues natifs doivent être explicitement gérés via <code>page.on("dialog", ...)</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 1.5 -->
+  <section class="module" id="m15">
+    <h2>Module 1.5 — Debug et rapports</h2>
+    <p class="module-sub">Trace Viewer, mode UI, screenshots/vidéos, lecture du rapport HTML.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Diagnostiquer efficacement un test qui échoue, en utilisant les outils de debug intégrés à Playwright plutôt qu'en devinant ou en ajoutant des <code>console.log</code> au hasard.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p><strong>Mode UI</strong> (<code>npx playwright test --ui</code>) : une interface graphique qui liste les tests, permet de les exécuter individuellement, et affiche un timeline pas-à-pas de chaque action avec l'état du DOM à chaque étape. C'est l'outil à privilégier en développement de test au quotidien.</p>
+      <p><strong>Mode debug</strong> (<code>npx playwright test --debug</code>) : ouvre l'Inspector Playwright, qui met le test en pause avant chaque action et permet d'avancer manuellement, d'inspecter les locators en direct, et de voir pourquoi une action attend (ex. élément non visible).</p>
+      <p><strong>Trace Viewer.</strong> Une trace est un enregistrement complet de l'exécution d'un test : captures d'écran à chaque étape, DOM snapshot, requêtes réseau, logs console. Configurée dans <code>playwright.config.ts</code> (typiquement <code>trace: "on-first-retry"</code> en CI pour ne pas alourdir chaque run), elle se rouvre après coup avec <code>npx playwright show-trace trace.zip</code> — l'outil de diagnostic le plus puissant pour comprendre un échec survenu en CI, là où on ne peut pas observer l'exécution en direct.</p>
+      <p><strong>Screenshots et vidéos à l'échec.</strong> Configurables via <code>screenshot: "only-on-failure"</code> et <code>video: "retain-on-failure"</code> : capturent automatiquement l'état visuel au moment de l'échec, sans effort supplémentaire dans le code du test.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>// playwright.config.ts (extrait)
+import { defineConfig } from "@playwright/test";
+
+export default defineConfig({
+  use: {
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
+  },
+});</code></pre>
+      <pre><code># Mode UI — exploration interactive et pas-à-pas
+npx playwright test --ui
+
+# Mode debug — pause avant chaque action, Inspector ouvert
+npx playwright test --debug tests/checkout.spec.ts
+
+# Rejouer une trace enregistrée (ex. récupérée depuis la CI)
+npx playwright show-trace test-results/checkout-retry1/trace.zip</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <p>À partir d'un test volontairement cassé (locator incorrect ou assertion erronée sur un scénario que tu as déjà écrit) :</p>
+      <ol>
+        <li>Configure <code>trace: "on"</code> temporairement et exécute le test qui échoue.</li>
+        <li>Ouvre la trace générée et identifie précisément à quelle étape et pourquoi le test échoue.</li>
+        <li>Relance le même test en mode <code>--debug</code> et observe la différence d'usage entre les deux outils.</li>
+        <li>Corrige le test, puis repasse la config trace en <code>"on-first-retry"</code> (réglage recommandé pour ne pas alourdir l'exécution normale).</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> laisser <code>trace: "on"</code> en permanence — cela ralentit sensiblement l'exécution et alourdit le stockage. Réservé au debug ponctuel ou au premier retry en CI.</li>
+        <li>En entreprise, la trace récupérée depuis les artefacts CI est souvent le seul moyen de diagnostiquer un échec qui ne se reproduit pas en local — un réflexe indispensable à acquérir dès maintenant plutôt qu'en urgence plus tard.</li>
+        <li>Un test qui échoue en local avec un message d'assertion clair ("expected 'Connecté' received 'Erreur de connexion'") n'a souvent pas besoin de la trace : elle est surtout précieuse quand la cause n'est pas évidente à la lecture du message d'erreur.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Quelle est la différence d'usage entre le mode UI et le mode debug ?</li>
+        <li>Que contient une trace Playwright, et pourquoi est-elle particulièrement utile pour un échec survenu en CI ?</li>
+        <li>Pourquoi ne configure-t-on généralement pas <code>trace: "on"</code> en permanence ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Mode UI pour développer et explorer, mode debug pour investiguer pas-à-pas un test précis.</li>
+        <li>Trace Viewer = l'outil de diagnostic le plus complet, notamment pour les échecs en CI.</li>
+        <li>Screenshots/vidéos à l'échec se configurent une fois pour toutes, sans effort dans chaque test.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="phase-close" id="cloture">
+    <h2>Clôture de la Phase 1</h2>
+    <p>Validation de fin de phase : écrire seul un scénario UI complexe de bout en bout (parcours multi-écrans avec formulaire, navigation et vérification finale), puis diagnostiquer et corriger un test fourni volontairement cassé à l'aide du Trace Viewer.</p>
+    <table>
+      <tr><th>Critère</th><th>Attendu pour valider la phase</th></tr>
+      <tr><td>Locators</td><td>Choisir systématiquement le locator le plus robuste, sans recours abusif à <code>getByTestId</code></td></tr>
+      <tr><td>Synchronisation</td><td>Aucun <code>waitForTimeout</code> injustifié dans le code produit</td></tr>
+      <tr><td>Debug</td><td>Diagnostiquer un échec via la trace sans aide, en identifiant l'étape et la cause exactes</td></tr>
+    </table>
+    <p>Une fois ces critères validés, on démarre la Phase 2 — Architecture & conception.</p>
+  </div>
+</main>
+
+</body>
+</html>

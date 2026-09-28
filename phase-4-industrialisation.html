@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 4 — Industrialisation</title>
+<style>
+  :root{
+    --bg:#0f1220; --panel:#161a2e; --panel2:#1c2140; --text:#e7e9f5; --muted:#a3a8c3;
+    --accent:#7c9fff; --accent2:#8ee6c1; --warn:#ffb15c; --code-bg:#0b0d1a; --border:#2a2f55;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;
+  }
+  header.hero{
+    padding:56px 24px 40px; background:linear-gradient(135deg,#1a1f3d,#141833);
+    border-bottom:1px solid var(--border);
+  }
+  header.hero .tag{
+    display:inline-block; background:var(--panel2); color:var(--accent2);
+    padding:4px 12px; border-radius:20px; font-size:13px; font-weight:600; letter-spacing:.03em;
+  }
+  header.hero h1{ font-size:2.2rem; margin:16px 0 8px; }
+  header.hero p{ color:var(--muted); max-width:760px; font-size:1.05rem; }
+  main{ max-width:860px; margin:0 auto; padding:40px 24px 100px; }
+  nav.toc{
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:20px 24px; margin-bottom:48px;
+  }
+  nav.toc h2{ margin-top:0; font-size:1rem; text-transform:uppercase; letter-spacing:.05em; color:var(--accent2); }
+  nav.toc ol{ margin:0; padding-left:20px; }
+  nav.toc li{ margin:6px 0; }
+  nav.toc a{ color:var(--text); text-decoration:none; }
+  nav.toc a:hover{ color:var(--accent); }
+  section.module{ margin-bottom:64px; padding-top:16px; border-top:1px solid var(--border); }
+  section.module h2{ font-size:1.5rem; margin-bottom:4px; }
+  section.module .module-sub{ color:var(--muted); font-size:.95rem; margin-bottom:28px; }
+  .block{ margin-bottom:24px; }
+  .block h3{
+    font-size:.85rem; text-transform:uppercase; letter-spacing:.06em; margin:0 0 10px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .block h3::before{ content:""; width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .objectif h3::before{ background:var(--accent); }
+  .explication h3::before{ background:#8ea0ff; }
+  .demo h3::before{ background:var(--accent2); }
+  .pratique h3::before{ background:var(--warn); }
+  .approfondissement h3::before{ background:#ff8fa3; }
+  .validation h3::before{ background:#c792ea; }
+  .synthese h3::before{ background:#7dd3fc; }
+  .objectif{ background:var(--panel); border-left:3px solid var(--accent); padding:14px 18px; border-radius:0 8px 8px 0; }
+  .pratique{ background:var(--panel); border:1px dashed var(--warn); padding:16px 20px; border-radius:10px; }
+  .synthese{ background:var(--panel2); padding:16px 20px; border-radius:10px; }
+  pre{
+    background:var(--code-bg); border:1px solid var(--border); border-radius:10px;
+    padding:16px 18px; overflow-x:auto; font-size:.88rem;
+  }
+  code{ font-family:"SF Mono",Consolas,Monaco,"Courier New",monospace; }
+  p code, li code{ background:var(--panel2); padding:1px 6px; border-radius:4px; font-size:.9em; }
+  ul, ol{ padding-left:22px; }
+  li{ margin:6px 0; }
+  .phase-close{
+    margin-top:60px; padding:28px; background:linear-gradient(135deg,var(--panel2),var(--panel));
+    border-radius:14px; border:1px solid var(--border);
+  }
+  .phase-close h2{ margin-top:0; color:var(--accent2); }
+  table{ width:100%; border-collapse:collapse; margin:16px 0; font-size:.92rem; }
+  th,td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); }
+  th{ color:var(--accent2); font-weight:600; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">FORMATION PLAYWRIGHT + TYPESCRIPT</span>
+  <h1>Phase 4 — Industrialisation</h1>
+  <p>Objectif de la phase : rendre le framework prêt pour un contexte d'entreprise — Git avancé, intégration continue, stratégie de test en agile, et documentation d'un livrable professionnel. C'est la dernière ligne droite avant le projet final.</p>
+</header>
+
+<main>
+  <nav class="toc">
+    <h2>Sommaire</h2>
+    <ol>
+      <li><a href="#m41">Module 4.1 — Git avancé pour un projet de tests</a></li>
+      <li><a href="#m42">Module 4.2 — CI/CD avec GitHub Actions</a></li>
+      <li><a href="#m43">Module 4.3 — Stratégie de test en contexte agile</a></li>
+      <li><a href="#m44">Module 4.4 — Revue finale et documentation</a></li>
+      <li><a href="#cloture">Clôture de phase — projet final</a></li>
+    </ol>
+  </nav>
+
+  <!-- MODULE 4.1 -->
+  <section class="module" id="m41">
+    <h2>Module 4.1 — Git avancé pour un projet de tests</h2>
+    <p class="module-sub">Travailler en équipe sur un framework de tests : branches, conventions, revue de code.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Adopter un workflow Git professionnel adapté à un projet de tests automatisés : stratégie de branches, conventions de commit lisibles, et savoir relire une Pull Request de tests avec un œil critique.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p><strong>Stratégie de branches.</strong> Le modèle le plus courant en entreprise reste simple : une branche principale toujours stable (<code>main</code>), et une branche courte par fonctionnalité ou correctif (<code>feature/tests-panier</code>, <code>fix/flaky-login</code>), fusionnée via Pull Request après revue. Pour un framework de tests, chaque nouvelle suite de tests ou refactorisation d'architecture mérite sa propre branche, même sur un projet solo — cela isole le travail en cours et facilite la revue.</p>
+      <p><strong>Conventions de commit.</strong> Un message de commit devrait décrire l'intention, pas juste l'action : <code>"Ajoute les tests du parcours de paiement"</code> plutôt que <code>"update"</code>. La convention <em>Conventional Commits</em> (<code>feat:</code>, <code>fix:</code>, <code>refactor:</code>, <code>test:</code>) est largement répandue et facilite la lecture de l'historique, voire l'automatisation de changelogs.</p>
+      <p><strong>Revue de code sur des tests.</strong> Relire une Pull Request de tests demande une grille de lecture spécifique : le test est-il indépendant des autres ? Utilise-t-il le Page Object Model correctement ? Les assertions sont-elles pertinentes et suffisantes (pas juste "le bouton existe") ? Y a-t-il des <code>waitForTimeout</code> ou des locators fragiles introduits ? Ce réflexe de relecture est une compétence à part entière, distincte de l'écriture de tests.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code># Créer une branche dédiée pour une nouvelle suite de tests
+git checkout -b feature/tests-paiement
+
+# Commits avec convention Conventional Commits
+git add tests/paiement.spec.ts pages/PaiementPage.ts
+git commit -m "feat: ajoute les tests du parcours de paiement par carte"
+
+git add tests/paiement.spec.ts
+git commit -m "fix: corrige un locator ambigu sur le bouton de validation"
+
+# Pousser la branche et ouvrir une Pull Request depuis GitHub
+git push -u origin feature/tests-paiement</code></pre>
+      <pre><code># Grille de relecture d'une PR de tests (à garder sous la main)
+# - Le test est-il indépendant (pas de dépendance à l'ordre d'exécution) ?
+# - Les locators sont-ils robustes (getByRole/getByLabel en priorité) ?
+# - Les assertions couvrent-elles réellement le comportement attendu ?
+# - Le Page Object Model est-il respecté (pas de locator brut dans le test) ?
+# - Y a-t-il un waitForTimeout ou une attente arbitraire à justifier/supprimer ?
+# - Les données/secrets sont-ils correctement externalisés ?</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Crée une branche dédiée pour une nouvelle suite de tests sur ton projet fil rouge, avec des commits suivant la convention Conventional Commits.</li>
+        <li>Ouvre une Pull Request (même sans relecteur, le fait de la formaliser via GitHub compte) et rédige sa description en expliquant ce qu'elle apporte.</li>
+        <li>Applique la grille de relecture ci-dessus à ta propre PR, en tant qu'auto-relecture critique avant fusion — c'est un excellent entraînement.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> des branches qui vivent trop longtemps sans être fusionnées, accumulant des conflits avec <code>main</code> — préférer des branches courtes et des PR de taille raisonnable, plus faciles à relire correctement.</li>
+        <li>Un message de commit qui explique le <em>pourquoi</em> plutôt que le <em>quoi</em> évident (le diff montre déjà quoi a changé) apporte une vraie valeur à l'historique, notamment pour un correctif de flaky test dont la cause n'est pas évidente à la seule lecture du code.</li>
+        <li>En entreprise, la relecture de PR de tests est souvent négligée par rapport au code applicatif — un SDET qui applique une grille de relecture rigoureuse à ses propres tests et à ceux de l'équipe apporte une vraie valeur différenciante.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Pourquoi préfère-t-on des branches courtes plutôt que des branches qui vivent plusieurs semaines ?</li>
+        <li>Cite trois points spécifiques à vérifier lors de la relecture d'une Pull Request de tests.</li>
+        <li>Quel est l'intérêt d'un message de commit qui explique le "pourquoi" plutôt que le "quoi" ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Branches courtes par fonctionnalité, fusionnées via Pull Request après revue.</li>
+        <li>Conventional Commits pour un historique lisible et exploitable.</li>
+        <li>La relecture de tests suit une grille spécifique (indépendance, robustesse, pertinence des assertions).</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 4.2 -->
+  <section class="module" id="m42">
+    <h2>Module 4.2 — CI/CD avec GitHub Actions</h2>
+    <p class="module-sub">Exécuter automatiquement la suite de tests à chaque changement de code.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Écrire un workflow GitHub Actions qui exécute la suite de tests Playwright à chaque push et Pull Request, et configurer la récupération des rapports et traces comme artefacts consultables.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>Un workflow GitHub Actions est défini dans un fichier YAML sous <code>.github/workflows/</code>. Il décrit un déclencheur (<code>on: push</code>, <code>on: pull_request</code>...), un environnement d'exécution (une machine virtuelle Ubuntu typiquement), et une suite d'étapes : installer les dépendances, installer les navigateurs Playwright, exécuter les tests, et publier les résultats.</p>
+      <p>Playwright fournit une image Docker officielle et une commande dédiée pour installer les navigateurs en CI (<code>npx playwright install --with-deps</code>), qui inclut les dépendances système nécessaires, absentes par défaut sur une machine CI vierge.</p>
+      <p>Les <em>artefacts</em> sont des fichiers générés pendant le workflow (rapport HTML, traces des échecs) que GitHub Actions conserve et rend téléchargeables après l'exécution — essentiel puisqu'on ne peut pas observer l'exécution en CI en direct, contrairement au local.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code># .github/workflows/tests.yml
+name: Tests Playwright
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Installer les navigateurs Playwright
+        run: npx playwright install --with-deps
+
+      - name: Exécuter les tests
+        run: npx playwright test
+        env:
+          BASE_URL: ${{ secrets.RECETTE_BASE_URL }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+
+      - name: Publier le rapport comme artefact
+        if: always() # même si les tests échouent, on veut le rapport
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Crée le fichier <code>.github/workflows/tests.yml</code> dans ton projet fil rouge, en l'adaptant à ta structure.</li>
+        <li>Configure les secrets nécessaires (URL, tokens) dans les paramètres du dépôt GitHub, jamais en clair dans le YAML.</li>
+        <li>Pousse une branche et ouvre une Pull Request pour déclencher le workflow, puis observe son exécution dans l'onglet Actions de GitHub.</li>
+        <li>Volontairement, fais échouer un test et vérifie que le rapport reste bien téléchargeable en artefact malgré l'échec.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> oublier <code>if: always()</code> sur l'étape de publication d'artefact — par défaut, une étape ne s'exécute que si les précédentes ont réussi, ce qui prive exactement des rapports dont on a besoin quand les tests échouent.</li>
+        <li>Ne jamais mettre un secret en clair dans le fichier YAML, même sur un dépôt privé — toujours passer par les <em>GitHub Secrets</em> configurés dans les paramètres du dépôt.</li>
+        <li>Sur un projet volumineux, sharder l'exécution des tests sur plusieurs jobs parallèles (<code>--shard=1/3</code>, <code>--shard=2/3</code>...) réduit significativement le temps total du pipeline — une optimisation à considérer une fois la base fonctionnelle en place.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>À quoi sert <code>if: always()</code> sur l'étape de publication du rapport, et que se passerait-il sans elle ?</li>
+        <li>Pourquoi les secrets ne doivent-ils jamais apparaître en clair dans un fichier de workflow ?</li>
+        <li>Pourquoi <code>npx playwright install --with-deps</code> est-il nécessaire en CI alors qu'il n'est pas toujours utilisé en local ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Un workflow GitHub Actions déclenche l'exécution des tests à chaque push/PR, dans un environnement isolé.</li>
+        <li>Les artefacts (rapport, traces) doivent être publiés même en cas d'échec (<code>if: always()</code>).</li>
+        <li>Secrets toujours via GitHub Secrets, jamais en clair dans le YAML.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 4.3 -->
+  <section class="module" id="m43">
+    <h2>Module 4.3 — Stratégie de test en contexte agile</h2>
+    <p class="module-sub">Savoir quand automatiser, comment prioriser, et comment communiquer les résultats.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Situer l'automatisation dans une stratégie de test globale (pyramide des tests), décider quand automatiser un scénario plutôt qu'un autre, et savoir intégrer ce travail dans le rythme d'un sprint agile.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p><strong>Pyramide des tests.</strong> Le modèle classique représente trois niveaux : beaucoup de tests unitaires (rapides, ciblés, à la charge des développeurs), un nombre modéré de tests d'intégration/API (comme ceux du module 3.1, plus rapides et stables qu'un test UI), et peu de tests end-to-end UI (lents, plus fragiles, mais seuls capables de valider un vrai parcours utilisateur de bout en bout). L'erreur fréquente est d'inverser la pyramide : trop de tests UI lourds pour des vérifications qui auraient pu être couvertes plus bas, plus vite et plus stablement.</p>
+      <p><strong>Quand automatiser.</strong> Tous les scénarios ne méritent pas d'être automatisés. Les bons candidats : parcours critiques exécutés fréquemment, scénarios de non-régression sur des fonctionnalités stables, cas répétitifs et fastidieux en test manuel. À l'inverse, un test exploratoire ponctuel, une fonctionnalité encore instable en cours de développement, ou un scénario visuel très spécifique valent parfois mieux en test manuel ou en test visuel dédié.</p>
+      <p><strong>Intégration dans un sprint.</strong> L'automatisation d'un scénario s'intègre généralement en fin de développement d'une fonctionnalité, une fois son comportement stabilisé — automatiser trop tôt entraîne une réécriture coûteuse à chaque évolution en cours de sprint. Une pratique répandue consiste à inclure "tests automatisés écrits et passants" comme critère de "Definition of Done" d'un ticket.</p>
+      <p><strong>Communication.</strong> Un rapport de tests n'a de valeur que s'il est lu et compris par l'équipe : un résumé clair (taux de réussite, tendance, tests instables récurrents) partagé régulièrement (stand-up, canal dédié) vaut mieux qu'un rapport détaillé jamais consulté.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>Pyramide des tests — répartition indicative sur un projet type
+
+        /\
+       /UI\          ~10% — parcours critiques de bout en bout
+      /------\
+     /  API   \       ~30% — logique métier, contrats d'API
+    /----------\
+   /   Unitaire  \    ~60% — fonctions, composants isolés
+  /----------------\
+
+Grille de décision "automatiser ou non" :
+- Exécuté à chaque sprint / release ?           → Oui : bon candidat
+- Fonctionnalité stable (pas en cours de dev) ?  → Oui : bon candidat
+- Coût de test manuel élevé (répétitif, long) ?  → Oui : bon candidat
+- Fonctionnalité encore instable / exploratoire ? → Non : garder en manuel pour l'instant</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Liste 8 à 10 scénarios de test (réels ou imaginés) sur ton projet fil rouge.</li>
+        <li>Pour chacun, applique la grille de décision et classe-le : à automatiser en priorité, à automatiser plus tard, à garder en test manuel.</li>
+        <li>Pour les scénarios "à automatiser", identifie à quel niveau de la pyramide chacun devrait se situer (unitaire — hors de ton périmètre QA mais à signaler, API, ou UI).</li>
+        <li>Rédige un résumé de 3-4 phrases, dans un format que tu partagerais réellement à une équipe, sur l'état actuel de ta suite de tests du projet fil rouge.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> une pyramide inversée où l'essentiel de la couverture repose sur des tests UI lourds — symptôme classique d'une équipe QA isolée du développement, sans tests unitaires ni API pris en charge en amont.</li>
+        <li>L'automatisation n'est pas un objectif en soi : un scénario testé une seule fois dans toute la vie du produit n'a probablement pas besoin d'être automatisé, le coût de maintenance dépasserait le bénéfice.</li>
+        <li>En entreprise, la stratégie de test se discute avec l'équipe (développeurs, product owner), pas uniquement décidée en silo par la QA — la répartition entre unitaire/API/UI dépend aussi de ce que les développeurs couvrent déjà eux-mêmes.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Pourquoi une pyramide des tests "inversée" (beaucoup d'UI, peu d'API/unitaire) pose-t-elle problème ?</li>
+        <li>Cite trois critères qui font d'un scénario un bon candidat à l'automatisation.</li>
+        <li>Pourquoi automatiser une fonctionnalité encore en cours de développement est-il généralement une mauvaise idée ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Pyramide des tests : beaucoup d'unitaire, un peu d'API, peu d'UI — chaque niveau a son rôle.</li>
+        <li>Automatiser se décide selon la fréquence d'exécution, la stabilité, et le coût du test manuel.</li>
+        <li>Un rapport de tests n'a de valeur que s'il est communiqué de façon claire et régulière à l'équipe.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 4.4 -->
+  <section class="module" id="m44">
+    <h2>Module 4.4 — Revue finale et documentation</h2>
+    <p class="module-sub">Transformer le framework en un livrable professionnel, documenté et présentable.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Documenter le framework fil rouge comme un projet d'entreprise réel : README complet, conventions de code explicites, guide de contribution — de quoi permettre à une autre personne de le reprendre sans accompagnement.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>Un framework de tests non documenté perd une grande partie de sa valeur dès qu'il doit être repris par quelqu'un d'autre — ou par toi-même, six mois plus tard. Un README professionnel couvre généralement : une présentation courte du projet et de son périmètre, les prérequis et l'installation, comment exécuter les tests (localement, par tag, par navigateur), comment lire les rapports, et l'architecture générale (structure des dossiers, où trouver quoi).</p>
+      <p>Un guide de contribution (souvent <code>CONTRIBUTING.md</code>) formalise les conventions déjà pratiquées durant la formation : nommage des fichiers de test, structure attendue d'un Page Object, convention de commit, grille de relecture de PR — de quoi garantir une cohérence dans le temps, même à plusieurs contributeurs.</p>
+      <p>Cette revue finale est aussi l'occasion de relire l'ensemble du framework avec un regard d'ensemble : cohérence entre les modules, duplication éventuelle à factoriser, tests devenus obsolètes à retirer — un exercice de maintenance à long terme qui distingue un projet vivant d'un empilement de code qui fonctionne "pour l'instant".</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code># README.md — structure type
+
+## Framework de tests automatisés — [Nom du projet]
+
+### Présentation
+Ce framework couvre les parcours UI et API de [application], construit avec
+Playwright et TypeScript selon le Page Object Model.
+
+### Prérequis
+- Node.js 20+
+- Un fichier .env configuré (voir .env.example)
+
+### Installation
+\`\`\`
+npm install
+npx playwright install --with-deps
+\`\`\`
+
+### Exécution des tests
+\`\`\`
+npx playwright test                 # suite complète
+npx playwright test tests/panier    # un dossier ciblé
+npx playwright test --project=chromium
+\`\`\`
+
+### Architecture
+- tests/     : scénarios de test
+- pages/     : Page Objects
+- fixtures/  : fixtures personnalisées (auth, données)
+- data/      : jeux de données et factories
+
+### Rapports
+Après exécution : npx playwright show-report
+
+### Conventions
+Voir CONTRIBUTING.md</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Rédige un <code>README.md</code> complet pour ton projet fil rouge, en suivant la structure ci-dessus et en l'adaptant à ton contenu réel.</li>
+        <li>Rédige un <code>CONTRIBUTING.md</code> qui formalise tes propres conventions établies au fil des phases précédentes (nommage, structure des Page Objects, format de commit).</li>
+        <li>Relis l'ensemble du framework avec un regard critique : repère au moins une duplication ou une incohérence à corriger, et corrige-la.</li>
+        <li>Demande-toi honnêtement : une personne qui n'a jamais vu ce projet pourrait-elle l'installer et exécuter les tests en suivant uniquement le README ? Ajuste si nécessaire.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> une documentation écrite une fois puis jamais mise à jour, qui devient trompeuse plus vite qu'utile — la documentation d'un framework vivant se maintient au même rythme que le code lui-même.</li>
+        <li>Un README trop long décourage la lecture autant qu'un README absent : viser l'essentiel pour démarrer, avec des liens ou des sections dépliables pour les détails avancés si nécessaire.</li>
+        <li>En entretien ou en contexte professionnel, ce README et cette documentation sont souvent la première chose regardée avant même le code — ils reflètent directement ta capacité à produire un livrable réellement exploitable par une équipe.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Quels éléments essentiels un README de framework de tests devrait-il toujours couvrir ?</li>
+        <li>Pourquoi une documentation jamais mise à jour peut-elle devenir pire que l'absence de documentation ?</li>
+        <li>À quoi sert concrètement un fichier <code>CONTRIBUTING.md</code> distinct du README ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Un README complet couvre présentation, installation, exécution, architecture et rapports.</li>
+        <li><code>CONTRIBUTING.md</code> formalise les conventions pour garantir la cohérence dans le temps.</li>
+        <li>La documentation se maintient dans la durée, au même rythme que le code.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="phase-close" id="cloture">
+    <h2>Clôture de la Phase 4 — Projet final</h2>
+    <p>Soutenance du projet final : présentation du framework complet construit tout au long des cinq phases (architecture, POM, fixtures, tests API, CI/CD, documentation), justification des choix techniques effectués à chaque étape, et session de questions techniques couvrant l'ensemble du parcours.</p>
+    <table>
+      <tr><th>Critère</th><th>Attendu pour la soutenance</th></tr>
+      <tr><td>Git</td><td>Historique propre, branches courtes, convention de commit respectée</td></tr>
+      <tr><td>CI/CD</td><td>Pipeline GitHub Actions fonctionnel, artefacts publiés même en cas d'échec</td></tr>
+      <tr><td>Stratégie</td><td>Capacité à justifier ce qui a été automatisé, et à quel niveau de la pyramide</td></tr>
+      <tr><td>Documentation</td><td>README et conventions suffisamment clairs pour une reprise par un tiers</td></tr>
+      <tr><td>Autonomie</td><td>Justifier chaque choix d'architecture sans notes, répondre à des questions imprévues</td></tr>
+    </table>
+    <p>Cette soutenance marque la fin du parcours structuré — et le début d'une pratique autonome sur des projets réels.</p>
+  </div>
+</main>
+
+</body>
+</html>

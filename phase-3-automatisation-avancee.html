@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 3 — Automatisation avancée</title>
+<style>
+  :root{
+    --bg:#0f1220; --panel:#161a2e; --panel2:#1c2140; --text:#e7e9f5; --muted:#a3a8c3;
+    --accent:#7c9fff; --accent2:#8ee6c1; --warn:#ffb15c; --code-bg:#0b0d1a; --border:#2a2f55;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;
+  }
+  header.hero{
+    padding:56px 24px 40px; background:linear-gradient(135deg,#1a1f3d,#141833);
+    border-bottom:1px solid var(--border);
+  }
+  header.hero .tag{
+    display:inline-block; background:var(--panel2); color:var(--accent2);
+    padding:4px 12px; border-radius:20px; font-size:13px; font-weight:600; letter-spacing:.03em;
+  }
+  header.hero h1{ font-size:2.2rem; margin:16px 0 8px; }
+  header.hero p{ color:var(--muted); max-width:760px; font-size:1.05rem; }
+  main{ max-width:860px; margin:0 auto; padding:40px 24px 100px; }
+  nav.toc{
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:20px 24px; margin-bottom:48px;
+  }
+  nav.toc h2{ margin-top:0; font-size:1rem; text-transform:uppercase; letter-spacing:.05em; color:var(--accent2); }
+  nav.toc ol{ margin:0; padding-left:20px; }
+  nav.toc li{ margin:6px 0; }
+  nav.toc a{ color:var(--text); text-decoration:none; }
+  nav.toc a:hover{ color:var(--accent); }
+  section.module{ margin-bottom:64px; padding-top:16px; border-top:1px solid var(--border); }
+  section.module h2{ font-size:1.5rem; margin-bottom:4px; }
+  section.module .module-sub{ color:var(--muted); font-size:.95rem; margin-bottom:28px; }
+  .block{ margin-bottom:24px; }
+  .block h3{
+    font-size:.85rem; text-transform:uppercase; letter-spacing:.06em; margin:0 0 10px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .block h3::before{ content:""; width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .objectif h3::before{ background:var(--accent); }
+  .explication h3::before{ background:#8ea0ff; }
+  .demo h3::before{ background:var(--accent2); }
+  .pratique h3::before{ background:var(--warn); }
+  .approfondissement h3::before{ background:#ff8fa3; }
+  .validation h3::before{ background:#c792ea; }
+  .synthese h3::before{ background:#7dd3fc; }
+  .objectif{ background:var(--panel); border-left:3px solid var(--accent); padding:14px 18px; border-radius:0 8px 8px 0; }
+  .pratique{ background:var(--panel); border:1px dashed var(--warn); padding:16px 20px; border-radius:10px; }
+  .synthese{ background:var(--panel2); padding:16px 20px; border-radius:10px; }
+  pre{
+    background:var(--code-bg); border:1px solid var(--border); border-radius:10px;
+    padding:16px 18px; overflow-x:auto; font-size:.88rem;
+  }
+  code{ font-family:"SF Mono",Consolas,Monaco,"Courier New",monospace; }
+  p code, li code{ background:var(--panel2); padding:1px 6px; border-radius:4px; font-size:.9em; }
+  ul, ol{ padding-left:22px; }
+  li{ margin:6px 0; }
+  .phase-close{
+    margin-top:60px; padding:28px; background:linear-gradient(135deg,var(--panel2),var(--panel));
+    border-radius:14px; border:1px solid var(--border);
+  }
+  .phase-close h2{ margin-top:0; color:var(--accent2); }
+  table{ width:100%; border-collapse:collapse; margin:16px 0; font-size:.92rem; }
+  th,td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); }
+  th{ color:var(--accent2); font-weight:600; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">FORMATION PLAYWRIGHT + TYPESCRIPT</span>
+  <h1>Phase 3 — Automatisation avancée</h1>
+  <p>Objectif de la phase : élargir la couverture au-delà de l'UI avec les tests API, combiner les deux approches, exécuter en parallèle, et savoir diagnostiquer méthodiquement des tests instables. Ton expérience Postman va directement servir dans cette phase.</p>
+</header>
+
+<main>
+  <nav class="toc">
+    <h2>Sommaire</h2>
+    <ol>
+      <li><a href="#m31">Module 3.1 — Tests API avec Playwright</a></li>
+      <li><a href="#m32">Module 3.2 — Combinaison UI + API</a></li>
+      <li><a href="#m33">Module 3.3 — Exécution parallèle et performance</a></li>
+      <li><a href="#m34">Module 3.4 — Diagnostiquer et fiabiliser les flaky tests</a></li>
+      <li><a href="#cloture">Clôture de phase — évaluation intermédiaire</a></li>
+    </ol>
+  </nav>
+
+  <!-- MODULE 3.1 -->
+  <section class="module" id="m31">
+    <h2>Module 3.1 — Tests API avec Playwright</h2>
+    <p class="module-sub">Tout ce que tu fais aujourd'hui à la souris dans Postman, écrit en code typé et rejouable automatiquement.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Écrire des tests API avec Playwright : requêtes GET/POST/PUT/DELETE, gestion de l'authentification par token, assertions sur le corps et le statut des réponses.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>Playwright propose <code>APIRequestContext</code>, un client HTTP intégré, accessible via <code>request</code> dans un test, ou créé indépendamment via <code>request.newContext()</code> quand on veut un contexte API totalement séparé du navigateur (fréquent pour préparer des données avant un test UI — vu au module 3.2).</p>
+      <p>Le principe reste celui que tu connais déjà avec Postman : on envoie une requête avec une méthode, une URL, éventuellement des headers et un body, et on inspecte la réponse. La différence est que chaque appel devient reproductible, versionné dans Git, et exécutable automatiquement — plus besoin de rejouer une collection manuellement.</p>
+      <p>Pour l'authentification par token, deux approches courantes : passer le header <code>Authorization</code> à chaque requête, ou configurer un <code>extraHTTPHeaders</code> une fois pour tout un contexte de requêtes qui en a besoin partout.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>import { test, expect } from "@playwright/test";
+
+test("créer un utilisateur via l'API", async ({ request }) => {
+  const response = await request.post("/api/users", {
+    data: {
+      nom: "Camille Durand",
+      email: "camille.durand@exemple.com",
+    },
+  });
+
+  expect(response.status()).toBe(201);
+
+  const body = await response.json();
+  expect(body).toMatchObject({
+    nom: "Camille Durand",
+    email: "camille.durand@exemple.com",
+  });
+  expect(body.id).toBeDefined();
+});
+
+test("accès à une ressource protégée avec token", async ({ request }) => {
+  const loginResponse = await request.post("/api/auth/login", {
+    data: { email: "admin@exemple.com", password: "MotDePasseAdmin123!" },
+  });
+  const { token } = await loginResponse.json();
+
+  const response = await request.get("/api/admin/utilisateurs", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  expect(response.ok()).toBeTruthy();
+  const utilisateurs = await response.json();
+  expect(Array.isArray(utilisateurs)).toBeTruthy();
+});</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Reprends une collection Postman que tu utilises (ou une API publique de test comme <a href="https://reqres.in" target="_blank" rel="noopener">reqres.in</a>) et identifie 3 requêtes représentatives (création, lecture, suppression).</li>
+        <li>Transpose chacune en test Playwright TypeScript avec des assertions sur le statut ET sur le contenu de la réponse.</li>
+        <li>Si l'API nécessite une authentification, écris un test qui récupère d'abord un token puis l'utilise pour une requête protégée.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> vérifier uniquement le status code sans inspecter le corps de la réponse — un <code>200 OK</code> peut masquer une réponse vide ou incorrecte si on ne vérifie pas aussi les données retournées.</li>
+        <li><code>toMatchObject()</code> vérifie qu'un sous-ensemble de propriétés correspond, utile quand la réponse contient des champs dynamiques (id, timestamps) qu'on ne veut pas comparer strictement.</li>
+        <li>Contrairement à un test UI, un test API n'a pas d'auto-waiting sur des éléments visuels : la réponse HTTP est soit reçue soit non, ce qui rend ces tests généralement plus rapides et plus stables que les tests UI équivalents — bonne raison d'en écrire davantage quand c'est pertinent.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Pourquoi ne suffit-il pas de vérifier le status code d'une réponse API pour valider un test ?</li>
+        <li>Que permet <code>toMatchObject()</code> que ne permet pas une comparaison stricte de l'objet entier ?</li>
+        <li>Pourquoi les tests API sont-ils en général plus rapides et plus stables que les tests UI équivalents ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li><code>APIRequestContext</code> (via <code>request</code>) permet d'écrire des tests API typés et reproductibles.</li>
+        <li>Toujours vérifier statut ET contenu de la réponse, pas l'un sans l'autre.</li>
+        <li>L'expérience Postman se transpose directement : mêmes concepts, code en plus.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 3.2 -->
+  <section class="module" id="m32">
+    <h2>Module 3.2 — Combinaison UI + API</h2>
+    <p class="module-sub">Utiliser l'API pour préparer l'état avant un test UI : plus rapide, plus stable, plus ciblé.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Préparer les données nécessaires à un test UI via l'API plutôt que via l'interface, et vérifier une action UI par un contrôle croisé côté API.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>Un test UI qui doit, par exemple, tester la modification d'une commande existante n'a pas besoin de créer cette commande en cliquant à travers toute l'interface : c'est lent, et ça teste un parcours (la création) qui n'est pas l'objet du test. La pratique professionnelle standard consiste à créer les données de précondition via l'API (rapide, fiable), puis à ne tester en UI que ce qui doit réellement l'être.</p>
+      <p>Dans l'autre sens, une vérification croisée consiste à effectuer une action en UI (par exemple modifier un profil) puis à vérifier via un appel API direct que la donnée a bien été persistée côté serveur — une double garantie que l'action a eu l'effet attendu, pas seulement un effet visuel côté client.</p>
+      <p>Ce principe rejoint directement la notion de pyramide des tests (approfondie en Phase 4) : privilégier les couches les plus rapides et stables (API) pour tout ce qui n'est pas strictement le comportement visuel/interactif à valider.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>import { test, expect } from "@playwright/test";
+
+test("modifier le nom d'une commande existante", async ({ page, request }) => {
+  // Préparation via API : rapide, ne teste pas la création elle-même
+  const creationResponse = await request.post("/api/commandes", {
+    data: { produit: "Clavier mécanique", quantite: 1 },
+  });
+  const { id: commandeId } = await creationResponse.json();
+
+  // Le test UI se concentre uniquement sur ce qu'il doit valider : la modification
+  await page.goto(`/commandes/${commandeId}`);
+  await page.getByLabel("Note interne").fill("Livraison urgente");
+  await page.getByRole("button", { name: "Enregistrer" }).click();
+
+  await expect(page.getByText("Modifications enregistrées")).toBeVisible();
+
+  // Vérification croisée : la donnée est bien persistée côté serveur
+  const verifResponse = await request.get(`/api/commandes/${commandeId}`);
+  const commande = await verifResponse.json();
+  expect(commande.noteInterne).toBe("Livraison urgente");
+});</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Identifie sur ton projet fil rouge un test UI dont la précondition (créer un compte, un produit, une commande) pourrait être préparée via API plutôt qu'en cliquant dans l'interface.</li>
+        <li>Réécris ce test en préparant l'état via l'API et en ne testant en UI que l'action réellement concernée.</li>
+        <li>Ajoute une vérification croisée côté API après l'action UI.</li>
+        <li>Compare le temps d'exécution avant/après — le gain devrait être visible.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège à éviter :</strong> systématiser cette approche au point de ne plus jamais tester un parcours de création en UI — le parcours de création reste un scénario métier légitime à tester en UI au moins une fois, l'objectif est d'éviter de le <em>répéter</em> comme précondition dans chaque autre test.</li>
+        <li>Cette approche suppose que l'API testée est fiable et déjà couverte par ses propres tests (module 3.1) — sinon on risque de masquer un bug de préparation derrière un test UI qui semble passer.</li>
+        <li>En entreprise, cette pratique est un des leviers les plus efficaces pour réduire un temps d'exécution de suite de tests qui devient problématique en CI.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Pourquoi prépare-t-on souvent l'état d'un test UI via l'API plutôt qu'en cliquant dans l'interface ?</li>
+        <li>Pourquoi le parcours de création reste-t-il malgré tout légitime à tester en UI au moins une fois ?</li>
+        <li>Que permet une vérification croisée API après une action réalisée en UI ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Préparer les préconditions via API accélère et fiabilise les tests UI.</li>
+        <li>Vérification croisée API = double garantie qu'une action UI a eu l'effet attendu côté serveur.</li>
+        <li>Le parcours testé reste toujours couvert en UI au moins une fois — cette approche évite la répétition, pas la couverture.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 3.3 -->
+  <section class="module" id="m33">
+    <h2>Module 3.3 — Exécution parallèle et performance</h2>
+    <p class="module-sub">Faire tourner une suite de tests plus vite, sans sacrifier la fiabilité.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Comprendre le modèle de parallélisation de Playwright (workers, isolation), configurer l'exécution parallèle à bon escient, et savoir quand des tests doivent être exécutés en série plutôt qu'en parallèle.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>Playwright exécute par défaut les fichiers de test en parallèle, répartis sur plusieurs <em>workers</em> (des processus indépendants). Chaque test dans un même fichier s'exécute séquentiellement par défaut au sein de ce worker, sauf configuration contraire. Chaque test bénéficie d'un <code>context</code> de navigateur isolé (cookies, storage propres) : deux tests parallèles ne se marchent donc pas dessus au niveau du navigateur.</p>
+      <p>Le nombre de workers se configure via <code>workers</code> dans <code>playwright.config.ts</code> ou en ligne de commande — un compromis entre vitesse (plus de workers) et ressources machine disponibles (CPU, mémoire), particulièrement pertinent en CI où les ressources sont souvent limitées.</p>
+      <p><strong>Dépendances entre tests.</strong> Par défaut, les tests doivent être indépendants les uns des autres pour supporter la parallélisation. Quand un ordre est réellement nécessaire (rare, et à éviter si possible), <code>test.describe.serial()</code> force l'exécution séquentielle d'un groupe de tests — mais chaque test dans ce mode dépend de l'état laissé par le précédent, ce qui fragilise la suite : si le premier échoue, les suivants sont marqués comme ignorés, pas testés indépendamment.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>// playwright.config.ts (extrait)
+export default defineConfig({
+  workers: process.env.CI ? 2 : undefined, // undefined = auto, basé sur les cœurs CPU
+  fullyParallel: true, // parallélise aussi les tests au sein d'un même fichier
+});</code></pre>
+      <pre><code># Forcer un nombre de workers en ligne de commande
+npx playwright test --workers=4
+
+# Exécuter en série (utile pour isoler un problème de parallélisation)
+npx playwright test --workers=1</code></pre>
+      <pre><code>import { test } from "@playwright/test";
+
+// À utiliser avec parcimonie : les tests dépendent les uns des autres
+test.describe.serial("processus de commande en plusieurs étapes", () => {
+  test("étape 1 : création du panier", async ({ page }) => {
+    // ...
+  });
+
+  test("étape 2 : validation de la commande", async ({ page }) => {
+    // dépend de l'état laissé par l'étape 1
+  });
+});</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Mesure le temps d'exécution total de ta suite de tests actuelle avec <code>--workers=1</code> puis avec le nombre de workers par défaut.</li>
+        <li>Identifie si des tests de ton projet dépendent d'un état partagé (données créées par un test et utilisées par un autre) — un signe qu'ils ne sont pas correctement isolés.</li>
+        <li>Si c'est le cas, refactorise-les pour qu'ils soient indépendants (chacun crée ses propres données, idéalement via API comme vu au module 3.2) plutôt que de les forcer en <code>serial</code>.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> des tests qui passent en local (peu de workers, machine puissante) mais échouent en CI (plus de workers relatifs aux ressources, ou l'inverse) à cause d'une dépendance cachée à un ordre d'exécution ou à une donnée partagée non isolée.</li>
+        <li><code>test.describe.serial()</code> doit rester une exception : chaque test dépendant du précédent complique le diagnostic (un échec en cascade) et va à l'encontre de l'esprit même de tests automatisés indépendants.</li>
+        <li>Sur une base de données de test partagée entre plusieurs workers parallèles, une isolation par utilisateur/tenant de test (chaque worker travaille sur son propre jeu de données) évite les conflits — un sujet d'architecture à anticiper tôt sur un vrai projet.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Qu'est-ce qui garantit qu'un test parallèle ne "voit" pas les cookies ou le storage d'un autre test qui s'exécute en même temps ?</li>
+        <li>Pourquoi <code>test.describe.serial()</code> doit-il rester une exception plutôt qu'une habitude ?</li>
+        <li>Cite une cause fréquente de tests qui passent en local mais échouent en CI liée à la parallélisation.</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Playwright parallélise par défaut via des workers, avec un contexte navigateur isolé par test.</li>
+        <li>Le nombre de workers est un compromis vitesse/ressources, à ajuster surtout en CI.</li>
+        <li>L'indépendance des tests est la règle ; <code>describe.serial()</code> reste l'exception, avec ses inconvénients de diagnostic.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 3.4 -->
+  <section class="module" id="m34">
+    <h2>Module 3.4 — Diagnostiquer et fiabiliser les flaky tests</h2>
+    <p class="module-sub">La compétence qui distingue un SDET junior d'un SDET confirmé.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Identifier méthodiquement la cause réelle d'un test instable (flaky), au lieu de masquer le symptôme par un retry ou une attente arbitraire, et appliquer la correction adaptée à la cause identifiée.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>Un test flaky est un test qui passe et échoue de façon non déterministe, sans changement du code testé ni du test lui-même. C'est un des problèmes les plus coûteux en automatisation : il érode la confiance dans toute la suite de tests, au point que des échecs réels finissent par être ignorés par réflexe ("c'est encore un flaky").</p>
+      <p><strong>Causes typiques, par ordre de fréquence :</strong></p>
+      <ul>
+        <li><strong>Problèmes de timing</strong> non couverts par l'auto-waiting : une animation, un état intermédiaire non pris en compte par l'assertion.</li>
+        <li><strong>Données partagées</strong> entre tests exécutés en parallèle (vu au module 3.3) : un test modifie une donnée qu'un autre test parallèle utilise au même moment.</li>
+        <li><strong>Dépendance à l'environnement</strong> : un test qui suppose un état initial (base de données vide, compte inexistant) qui n'est plus vrai après plusieurs exécutions.</li>
+        <li><strong>Race conditions réseau</strong> : une action déclenchée avant qu'une requête réseau nécessaire soit terminée, sans attente explicite adaptée.</li>
+      </ul>
+      <p><strong>Méthode de diagnostic.</strong> Ne jamais se contenter de relancer le test en espérant qu'il passe. La trace (module 1.5) est l'outil central : comparer une exécution qui a échoué et une qui a réussi, repérer précisément à quelle étape et dans quel état le comportement diverge. Reproduire localement en isolant le test (<code>--workers=1</code>, exécution répétée du même test seul) permet souvent de distinguer un problème de timing d'un problème d'isolation.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code># Isoler un test suspecté flaky : l'exécuter seul, plusieurs fois de suite
+npx playwright test tests/panier.spec.ts --workers=1 --repeat-each=10</code></pre>
+      <pre><code>// Exemple de correction : problème de timing non couvert par l'auto-waiting
+// AVANT (flaky) : l'assertion vérifie un état qui peut être transitoire
+await page.getByRole("button", { name: "Ajouter au panier" }).click();
+await expect(page.getByTestId("cart-count")).toHaveText("1"); // parfois "0" encore visible brièvement
+
+// APRÈS : attendre explicitement la fin de la requête réseau concernée,
+// car ici l'auto-waiting sur le texte ne suffisait pas (le compteur clignotait à "0" puis "1")
+const responsePromise = page.waitForResponse(resp => resp.url().includes("/api/panier"));
+await page.getByRole("button", { name: "Ajouter au panier" }).click();
+await responsePromise;
+await expect(page.getByTestId("cart-count")).toHaveText("1");</code></pre>
+      <pre><code>// Exemple de correction : donnée partagée entre tests parallèles
+// AVANT (flaky en parallèle) : tous les tests utilisent le même email fixe
+const email = "test@exemple.com";
+
+// APRÈS : chaque test génère sa propre donnée, isolée
+import { faker } from "@faker-js/faker";
+const email = faker.internet.email();</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <p>Un fichier de tests volontairement instable sera fourni (ou : reprends un de tes tests et introduis délibérément une des causes ci-dessus pour t'entraîner à la détecter) :</p>
+      <ol>
+        <li>Exécute le test suspect plusieurs fois avec <code>--repeat-each</code> pour confirmer et quantifier l'instabilité.</li>
+        <li>Analyse les traces des exécutions échouées et identifie laquelle des quatre causes typiques est en jeu.</li>
+        <li>Rédige un court diagnostic écrit (2-3 phrases) expliquant la cause précise, avant de corriger.</li>
+        <li>Applique la correction adaptée à la cause identifiée — pas un correctif générique.</li>
+        <li>Reconfirme la stabilité avec plusieurs exécutions répétées après correction.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Anti-pattern courant et dangereux :</strong> configurer des <code>retries</code> élevés en CI pour "absorber" les flaky tests sans les corriger. Cela masque le symptôme, ralentit la CI, et laisse le vrai problème intact — les retries doivent rester un filet de sécurité ponctuel (typiquement 1-2 en CI), jamais une solution de fiabilisation.</li>
+        <li>Un test qui échoue une fois sur cent est presque aussi problématique qu'un test qui échoue une fois sur trois : sur une suite de centaines de tests exécutés plusieurs fois par jour, un taux d'échec même faible génère un bruit constant qui dilue l'attention portée aux vrais échecs.</li>
+        <li>Documenter les flaky tests corrigés (cause + solution) dans un historique d'équipe est une pratique professionnelle utile : les mêmes causes reviennent souvent sous des formes différentes.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Cite les quatre causes typiques de flaky tests vues dans ce module.</li>
+        <li>Pourquoi augmenter les <code>retries</code> en CI n'est-il pas une solution de fiabilisation ?</li>
+        <li>Quelle est la première chose à faire face à un test suspecté flaky, avant même d'essayer de le corriger ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Un flaky test a toujours une cause précise (timing, données partagées, environnement, race condition réseau) — jamais du "hasard".</li>
+        <li>La trace et l'exécution répétée isolée sont les outils de diagnostic de référence.</li>
+        <li>Les retries en CI sont un filet de sécurité ponctuel, jamais un substitut à la correction de la cause réelle.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="phase-close" id="cloture">
+    <h2>Clôture de la Phase 3 — évaluation pratique intermédiaire</h2>
+    <p>Évaluation pratique intermédiaire : audit d'une suite de tests instable fournie. Diagnostic écrit identifiant la cause précise de chaque instabilité, suivi des corrections adaptées — sans recourir à des retries ou des attentes arbitraires comme solution.</p>
+    <table>
+      <tr><th>Critère</th><th>Attendu pour valider la phase</th></tr>
+      <tr><td>Tests API</td><td>Écrire des tests API typés avec assertions sur statut ET contenu</td></tr>
+      <tr><td>UI + API</td><td>Savoir préparer un état de test via API plutôt qu'en UI, à bon escient</td></tr>
+      <tr><td>Parallélisation</td><td>Écrire des tests indépendants, sans recours injustifié à <code>serial</code></td></tr>
+      <tr><td>Flaky tests</td><td>Diagnostiquer une cause précise avant de corriger, sans solution générique</td></tr>
+    </table>
+    <p>Une fois ces critères validés, on démarre la Phase 4 — Industrialisation.</p>
+  </div>
+</main>
+
+</body>
+</html>

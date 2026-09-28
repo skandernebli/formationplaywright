@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 0 — Fondations TypeScript & environnement</title>
+<style>
+  :root{
+    --bg:#0f1220; --panel:#161a2e; --panel2:#1c2140; --text:#e7e9f5; --muted:#a3a8c3;
+    --accent:#7c9fff; --accent2:#8ee6c1; --warn:#ffb15c; --code-bg:#0b0d1a; --border:#2a2f55;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;
+  }
+  header.hero{
+    padding:56px 24px 40px; background:linear-gradient(135deg,#1a1f3d,#141833);
+    border-bottom:1px solid var(--border);
+  }
+  header.hero .tag{
+    display:inline-block; background:var(--panel2); color:var(--accent2);
+    padding:4px 12px; border-radius:20px; font-size:13px; font-weight:600; letter-spacing:.03em;
+  }
+  header.hero h1{ font-size:2.2rem; margin:16px 0 8px; }
+  header.hero p{ color:var(--muted); max-width:760px; font-size:1.05rem; }
+  main{ max-width:860px; margin:0 auto; padding:40px 24px 100px; }
+  nav.toc{
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:20px 24px; margin-bottom:48px;
+  }
+  nav.toc h2{ margin-top:0; font-size:1rem; text-transform:uppercase; letter-spacing:.05em; color:var(--accent2); }
+  nav.toc ol{ margin:0; padding-left:20px; }
+  nav.toc li{ margin:6px 0; }
+  nav.toc a{ color:var(--text); text-decoration:none; }
+  nav.toc a:hover{ color:var(--accent); }
+  section.module{
+    margin-bottom:64px; padding-top:16px; border-top:1px solid var(--border);
+  }
+  section.module h2{
+    font-size:1.5rem; margin-bottom:4px;
+  }
+  section.module .module-sub{ color:var(--muted); font-size:.95rem; margin-bottom:28px; }
+  .block{ margin-bottom:24px; }
+  .block h3{
+    font-size:.85rem; text-transform:uppercase; letter-spacing:.06em; margin:0 0 10px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .block h3::before{ content:""; width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .objectif h3::before{ background:var(--accent); }
+  .explication h3::before{ background:#8ea0ff; }
+  .demo h3::before{ background:var(--accent2); }
+  .pratique h3::before{ background:var(--warn); }
+  .approfondissement h3::before{ background:#ff8fa3; }
+  .validation h3::before{ background:#c792ea; }
+  .synthese h3::before{ background:#7dd3fc; }
+  .objectif{ background:var(--panel); border-left:3px solid var(--accent); padding:14px 18px; border-radius:0 8px 8px 0; }
+  .pratique{ background:var(--panel); border:1px dashed var(--warn); padding:16px 20px; border-radius:10px; }
+  .synthese{ background:var(--panel2); padding:16px 20px; border-radius:10px; }
+  pre{
+    background:var(--code-bg); border:1px solid var(--border); border-radius:10px;
+    padding:16px 18px; overflow-x:auto; font-size:.88rem;
+  }
+  code{ font-family:"SF Mono",Consolas,Monaco,"Courier New",monospace; }
+  p code, li code{ background:var(--panel2); padding:1px 6px; border-radius:4px; font-size:.9em; }
+  ul, ol{ padding-left:22px; }
+  li{ margin:6px 0; }
+  .validation ol{ padding-left:18px; }
+  .phase-close{
+    margin-top:60px; padding:28px; background:linear-gradient(135deg,var(--panel2),var(--panel));
+    border-radius:14px; border:1px solid var(--border);
+  }
+  .phase-close h2{ margin-top:0; color:var(--accent2); }
+  table{ width:100%; border-collapse:collapse; margin:16px 0; font-size:.92rem; }
+  th,td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); }
+  th{ color:var(--accent2); font-weight:600; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">FORMATION PLAYWRIGHT + TYPESCRIPT</span>
+  <h1>Phase 0 — Fondations TypeScript & environnement</h1>
+  <p>Objectif de la phase : faire disparaître l'obstacle du code. À l'issue de cette phase, tu écris et lis du TypeScript sans effort de traduction, ton environnement (Node, npm, Git, VS Code) est opérationnel, et ton tout premier test Playwright tourne.</p>
+</header>
+
+<main>
+  <nav class="toc">
+    <h2>Sommaire</h2>
+    <ol>
+      <li><a href="#m01">Module 0.1 — Environnement de travail</a></li>
+      <li><a href="#m02">Module 0.2 — JavaScript essentiel pour l'automatisation</a></li>
+      <li><a href="#m03">Module 0.3 — TypeScript appliqué</a></li>
+      <li><a href="#m04">Module 0.4 — Premier projet Playwright</a></li>
+      <li><a href="#cloture">Clôture de phase — validation</a></li>
+    </ol>
+  </nav>
+
+  <!-- MODULE 0.1 -->
+  <section class="module" id="m01">
+    <h2>Module 0.1 — Environnement de travail</h2>
+    <p class="module-sub">Node.js, npm, Git, VS Code : le socle sur lequel tout le reste repose.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>À la fin de ce module, tu as un poste de travail complet : Node.js et npm installés et compris, Git configuré avec un premier dépôt fonctionnel, VS Code équipé des bonnes extensions.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p><strong>Node.js et npm.</strong> Playwright est un framework JavaScript/TypeScript : il s'exécute via Node.js, le moteur qui permet de faire tourner du JS en dehors du navigateur. npm (Node Package Manager) est l'outil qui télécharge et gère les librairies (les "packages") dont ton projet dépend — Playwright en est un. Installe la version LTS (Long Term Support) de Node, la plus stable pour un usage professionnel.</p>
+      <p>Concrètement, un projet Node contient un fichier <code>package.json</code> qui liste ses dépendances et ses scripts, et un dossier <code>node_modules</code> qui contient le code réellement téléchargé. Ce dossier ne se commite jamais dans Git : il se régénère avec <code>npm install</code>.</p>
+      <p><strong>Git.</strong> Tu n'as pas besoin de maîtriser Git à ce stade, seulement le cycle de base : modifier un fichier, le mettre en zone de préparation (<code>add</code>), l'enregistrer dans l'historique (<code>commit</code>), et envoyer vers un dépôt distant (<code>push</code>). Les branches et les Pull Requests viendront en Phase 4 quand on parlera de CI/CD et de travail en équipe — inutile de tout charger maintenant.</p>
+      <p><strong>VS Code.</strong> C'est l'éditeur standard de l'écosystème Playwright. Trois extensions suffisent pour démarrer : <em>Playwright Test for VS Code</em> (exécution et debug des tests depuis l'éditeur), <em>ESLint</em> (détection d'erreurs et de mauvaises pratiques), <em>Prettier</em> (formatage automatique et cohérent du code).</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code># Vérifier les installations
+node -v
+npm -v
+git --version
+
+# Initialiser un dépôt Git dans un nouveau dossier
+mkdir playwright-training && cd playwright-training
+git init
+git config user.name "Ton Nom"
+git config user.email "ton.email@exemple.com"
+
+# Premier commit (même vide, pour valider le flux)
+echo "# Playwright Training" > README.md
+git add README.md
+git commit -m "Initial commit"</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Installe Node.js LTS et vérifie la version avec <code>node -v</code>.</li>
+        <li>Crée un dépôt Git local nommé <code>playwright-training</code>, avec un premier commit contenant un <code>README.md</code>.</li>
+        <li>Crée un compte GitHub si tu n'en as pas, crée un dépôt distant vide, et pousse ton commit local dessus (<code>git remote add origin ...</code> puis <code>git push</code>).</li>
+        <li>Installe les trois extensions VS Code mentionnées et ouvre ton dossier de projet dans l'éditeur.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> commiter <code>node_modules</code> par erreur. Toujours créer un fichier <code>.gitignore</code> dès le premier commit avec au minimum <code>node_modules/</code> et <code>.env</code> dedans.</li>
+        <li>En entreprise, on utilise presque toujours un gestionnaire de versions Node (nvm) pour pouvoir changer de version de Node selon le projet — bon réflexe à prendre dès maintenant même si tu n'as qu'un seul projet.</li>
+        <li>Configure Prettier avec un fichier <code>.prettierrc</code> partagé dans le projet : la cohérence de style compte plus que les préférences individuelles en équipe.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>À quoi sert le dossier <code>node_modules</code>, et pourquoi ne le commite-t-on jamais ?</li>
+        <li>Quelle est la différence entre <code>git add</code> et <code>git commit</code> ?</li>
+        <li>Que se passe-t-il si tu exécutes <code>npm install</code> dans un dossier qui ne contient pas de <code>package.json</code> ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Node.js exécute le JS/TS côté machine, npm gère les dépendances via <code>package.json</code>.</li>
+        <li>Cycle Git de base : <code>add</code> → <code>commit</code> → <code>push</code>.</li>
+        <li>VS Code + extensions Playwright/ESLint/Prettier = environnement de développement prêt.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 0.2 -->
+  <section class="module" id="m02">
+    <h2>Module 0.2 — JavaScript essentiel pour l'automatisation</h2>
+    <p class="module-sub">Le strict nécessaire de JS pour comprendre n'importe quel test Playwright.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Lire et écrire des fonctions, manipuler des tableaux et objets, et surtout comprendre le fonctionnement asynchrone (Promises, <code>async</code>/<code>await</code>) — le point le plus critique, car Playwright est intégralement asynchrone.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p><strong>Variables.</strong> Utilise toujours <code>const</code> par défaut (valeur qui ne change pas de référence), et <code>let</code> seulement si la variable doit être réassignée. <code>var</code> est obsolète et à bannir.</p>
+      <p><strong>Fonctions fléchées.</strong> La syntaxe moderne privilégiée : <code>const addition = (a, b) => a + b;</code>. Tu les rencontreras partout dans les tests Playwright, notamment dans les callbacks passés à <code>test()</code>.</p>
+      <p><strong>Tableaux et objets.</strong> Les méthodes <code>map</code>, <code>filter</code>, <code>find</code> transforment ou recherchent dans un tableau sans boucle explicite. Le "destructuring" permet d'extraire des valeurs directement : <code>const { name, email } = user;</code>.</p>
+      <p><strong>Asynchrone — le point clé.</strong> En JavaScript, une opération longue (requête réseau, attente d'un élément à l'écran) ne bloque pas le programme : elle renvoie une <em>Promise</em>, un objet qui représente "un résultat qui arrivera plus tard". Historiquement on gérait ça avec des callbacks (imbrications illisibles), puis avec <code>.then()</code>, et aujourd'hui avec <code>async</code>/<code>await</code> qui permet d'écrire du code asynchrone avec une syntaxe qui ressemble à du code synchrone. Playwright utilise <code>await</code> devant quasiment chaque action (<code>await page.click(...)</code>) car cliquer, naviguer ou lire le DOM sont des opérations asynchrones.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>// Fonction fléchée + destructuring
+const users = [
+  { name: "Alice", role: "admin" },
+  { name: "Bob", role: "viewer" },
+  { name: "Chloé", role: "admin" },
+];
+
+const admins = users.filter(u => u.role === "admin").map(u => u.name);
+console.log(admins); // ["Alice", "Chloé"]
+
+// Une fonction qui simule une opération asynchrone (comme un appel réseau)
+function attendre(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Version async/await : lisible, séquentielle
+async function scenario() {
+  console.log("Début");
+  await attendre(1000); // on attend 1 seconde sans bloquer le reste du programme
+  console.log("1 seconde plus tard");
+}
+
+scenario();</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <p>Dans un script Node.js (<code>exercice.js</code>) :</p>
+      <ol>
+        <li>Crée un tableau d'objets <code>produits</code> (nom, prix, catégorie) d'au moins 5 éléments.</li>
+        <li>Utilise <code>filter</code> pour ne garder que les produits d'une catégorie donnée.</li>
+        <li>Utilise <code>map</code> pour obtenir la liste des noms uniquement.</li>
+        <li>Écris une fonction <code>async</code> qui simule le chargement des produits (avec un <code>setTimeout</code> enveloppé dans une Promise) puis affiche le résultat une fois "chargé".</li>
+      </ol>
+      <p>Cherche d'abord seul avant de demander une correction — c'est prévu dans la méthode.</p>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège très fréquent :</strong> oublier <code>await</code> devant un appel qui retourne une Promise. Le code continue alors sans attendre le résultat, ce qui dans Playwright provoque des tests instables (flaky) car une action est tentée avant que la précédente soit terminée.</li>
+        <li>Une fonction déclarée <code>async</code> retourne toujours une Promise, même si elle ne contient pas de <code>await</code> — bon réflexe à intégrer tôt.</li>
+        <li>En entreprise, un code plein de <code>.then().then().then()</code> imbriqués est presque toujours un signe qu'il faudrait migrer vers <code>async</code>/<code>await</code>.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Pourquoi Playwright utilise-t-il <code>await</code> devant la quasi-totalité de ses actions ?</li>
+        <li>Que retourne toujours une fonction déclarée <code>async</code>, même sans <code>await</code> à l'intérieur ?</li>
+        <li>Écris de mémoire la différence de syntaxe entre une fonction classique et une fonction fléchée.</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li><code>const</code> par défaut, <code>let</code> si réassignation, jamais <code>var</code>.</li>
+        <li><code>map</code>/<code>filter</code>/<code>find</code> pour manipuler des tableaux sans boucle explicite.</li>
+        <li>Une Promise représente un résultat futur ; <code>async</code>/<code>await</code> en est la syntaxe lisible — c'est le cœur de tout code Playwright.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 0.3 -->
+  <section class="module" id="m03">
+    <h2>Module 0.3 — TypeScript appliqué</h2>
+    <p class="module-sub">Le typage et la programmation orientée objet, prérequis direct du Page Object Model (Phase 2).</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Typer des variables, fonctions et objets ; écrire une classe avec des méthodes et des propriétés privées ; comprendre les interfaces et les types union suffisamment pour lire n'importe quel exemple Playwright officiel.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p><strong>Pourquoi TypeScript en automatisation.</strong> Le typage statique détecte des erreurs avant l'exécution (faute de frappe sur une propriété, mauvais type passé à une fonction), et l'autocomplétion de l'éditeur devient bien plus fiable — précieux quand un framework de tests grossit et est maintenu par plusieurs personnes.</p>
+      <p><strong>Types de base et interfaces.</strong> On type les variables (<code>let age: number</code>), les paramètres et retours de fonction, et surtout la forme des objets via des <code>interface</code> : <code>interface User { name: string; email: string; role?: "admin" | "viewer"; }</code>. Le <code>?</code> marque une propriété optionnelle, et <code>"admin" | "viewer"</code> est un type union : la valeur ne peut être que l'une de ces deux chaînes précises.</p>
+      <p><strong>Classes.</strong> Une classe regroupe des données (propriétés) et des comportements (méthodes). C'est la structure que tu utiliseras pour chaque Page Object en Phase 2 : une classe <code>LoginPage</code> contiendra par exemple les locators de la page de connexion et une méthode <code>login(email, password)</code>. Les modificateurs <code>private</code>/<code>public</code>/<code>protected</code> contrôlent qui peut accéder à quoi : une bonne pratique est de rendre <code>private</code> tout ce qui est un détail d'implémentation interne.</p>
+      <p><strong>Génériques (aperçu).</strong> Un type générique s'adapte au type qu'on lui passe, par exemple <code>Array&lt;string&gt;</code> est un tableau de chaînes. Il n'est pas nécessaire de les maîtriser en profondeur maintenant ; l'objectif est de ne pas être bloqué en les croisant dans la documentation Playwright.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code>// Interface : la forme attendue d'un objet
+interface Utilisateur {
+  nom: string;
+  email: string;
+  role?: "admin" | "viewer"; // propriété optionnelle, type union
+}
+
+// Fonction typée
+function creerUtilisateur(nom: string, email: string): Utilisateur {
+  return { nom, email, role: "viewer" };
+}
+
+// Classe avec propriété privée et méthode publique
+class CompteBancaire {
+  private solde: number;
+
+  constructor(soldeInitial: number) {
+    this.solde = soldeInitial;
+  }
+
+  deposer(montant: number): void {
+    this.solde += montant;
+  }
+
+  consulterSolde(): number {
+    return this.solde;
+  }
+}
+
+const compte = new CompteBancaire(100);
+compte.deposer(50);
+console.log(compte.consulterSolde()); // 150
+// compte.solde // Erreur TypeScript : 'solde' est privé</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Écris une interface <code>Produit</code> (nom, prix, quantité en stock).</li>
+        <li>Écris une classe <code>Panier</code> avec une propriété privée <code>articles: Produit[]</code>, une méthode <code>ajouter(produit: Produit)</code>, et une méthode <code>total(): number</code> qui calcule la somme des prix.</li>
+        <li>Instancie un panier, ajoute 3 produits, affiche le total.</li>
+        <li>Volontairement, essaie d'accéder directement à <code>panier.articles</code> depuis l'extérieur de la classe et observe l'erreur TypeScript — c'est le but pédagogique de <code>private</code>.</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> typer avec <code>any</code> pour "faire taire" une erreur TypeScript. C'est exactement ce que le typage est censé éviter — à n'utiliser qu'en tout dernier recours, jamais par facilité.</li>
+        <li>En Page Object Model, la convention est quasi systématique : les locators sont des propriétés privées ou readonly, les actions utilisateur (comme <code>login()</code>, <code>ajouterAuPanier()</code>) sont les seules méthodes publiques exposées.</li>
+        <li>Active <code>strict: true</code> dans <code>tsconfig.json</code> dès le départ : c'est plus dur au début, mais ça évite de prendre de mauvaises habitudes qu'il faudra corriger plus tard sur un vrai projet d'entreprise.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>Quelle est la différence entre une <code>interface</code> et une <code>class</code> en TypeScript ?</li>
+        <li>Pourquoi rend-on souvent les locators <code>private</code> dans une classe de Page Object ?</li>
+        <li>Que signifie le <code>?</code> après un nom de propriété dans une interface ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li>Les <code>interface</code> décrivent la forme des données, les <code>class</code> combinent données et comportements.</li>
+        <li><code>private</code>/<code>public</code> structurent ce qu'une classe expose — base directe du POM en Phase 2.</li>
+        <li>Éviter <code>any</code> : le typage strict est un allié, pas une contrainte à contourner.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MODULE 0.4 -->
+  <section class="module" id="m04">
+    <h2>Module 0.4 — Premier projet Playwright</h2>
+    <p class="module-sub">De l'installation au premier test vert, avec une lecture guidée de chaque fichier généré.</p>
+
+    <div class="block objectif">
+      <h3>Objectif</h3>
+      <p>Installer Playwright, comprendre la structure de projet générée, exécuter un test fourni et lire son rapport HTML. On ne cherche pas encore à écrire de vrais scénarios — cela commence en Phase 1.</p>
+    </div>
+
+    <div class="block explication">
+      <h3>Explication</h3>
+      <p>La commande d'installation officielle génère une structure standard : un dossier <code>tests/</code> avec un exemple de test, un fichier <code>playwright.config.ts</code> qui centralise la configuration (navigateurs ciblés, dossier des tests, options de rapport), et un dossier <code>tests-examples/</code> avec des scénarios de démonstration.</p>
+      <p><code>playwright.config.ts</code> est le fichier le plus important à comprendre dès maintenant : il définit entre autres les "projects" (les navigateurs sur lesquels les tests s'exécutent — Chromium, Firefox, WebKit), la <code>baseURL</code>, et le <code>reporter</code> utilisé pour générer les rapports après exécution.</p>
+      <p>Un test Playwright minimal se compose d'un bloc <code>test()</code> contenant un titre et une fonction <code>async</code> qui reçoit un objet <code>page</code> — la page de navigateur sur laquelle on agit.</p>
+    </div>
+
+    <div class="block demo">
+      <h3>Démonstration</h3>
+      <pre><code># Installation dans un projet existant
+npm init playwright@latest
+
+# Cela installe @playwright/test, télécharge les navigateurs,
+# et propose de créer un exemple de workflow GitHub Actions (à ignorer pour l'instant)</code></pre>
+      <pre><code>// tests/exemple.spec.ts
+import { test, expect } from "@playwright/test";
+
+test("la page d'accueil de Playwright a le bon titre", async ({ page }) => {
+  await page.goto("https://playwright.dev/");
+  await expect(page).toHaveTitle(/Playwright/);
+});</code></pre>
+      <pre><code># Exécuter les tests
+npx playwright test
+
+# Ouvrir le rapport HTML généré après exécution
+npx playwright show-report</code></pre>
+    </div>
+
+    <div class="block pratique">
+      <h3>Mise en pratique</h3>
+      <ol>
+        <li>Installe Playwright dans ton dépôt <code>playwright-training</code> créé au module 0.1.</li>
+        <li>Exécute le test d'exemple généré et vérifie qu'il passe.</li>
+        <li>Ouvre <code>playwright.config.ts</code> et identifie : la <code>baseURL</code> (si définie), la liste des <code>projects</code>, et le <code>reporter</code> configuré.</li>
+        <li>Ouvre le rapport HTML et repère : le statut du test, sa durée, et où se trouveraient les traces/screenshots en cas d'échec.</li>
+        <li>Commite la structure générée dans Git (attention au <code>.gitignore</code> vu au module 0.1 : <code>node_modules/</code>, <code>test-results/</code>, <code>playwright-report/</code>).</li>
+      </ol>
+    </div>
+
+    <div class="block approfondissement">
+      <h3>Approfondissement</h3>
+      <ul>
+        <li><strong>Piège fréquent :</strong> commiter <code>playwright-report/</code> et <code>test-results/</code> — ce sont des sorties générées à chaque exécution, elles n'ont rien à faire dans le dépôt Git.</li>
+        <li>Playwright installe par défaut trois navigateurs (Chromium, Firefox, WebKit) : en entreprise, on limite souvent l'exécution locale à un seul navigateur pour aller plus vite, et on réserve la matrice complète à la CI (vu en Phase 4).</li>
+        <li>La commande <code>npx playwright test --ui</code> ouvre un mode interactif très utile dès maintenant pour visualiser l'exécution pas à pas — on l'approfondira au module 1.5.</li>
+      </ul>
+    </div>
+
+    <div class="block validation">
+      <h3>Validation</h3>
+      <ol>
+        <li>À quoi sert le fichier <code>playwright.config.ts</code> ?</li>
+        <li>Pourquoi ne commite-t-on pas <code>playwright-report/</code> dans Git ?</li>
+        <li>Quels éléments un rapport HTML Playwright affiche-t-il après une exécution ?</li>
+      </ol>
+    </div>
+
+    <div class="block synthese">
+      <h3>Synthèse</h3>
+      <ul>
+        <li><code>npm init playwright@latest</code> génère une structure standard prête à l'emploi.</li>
+        <li><code>playwright.config.ts</code> centralise la configuration (navigateurs, baseURL, reporter).</li>
+        <li><code>npx playwright test</code> exécute, <code>npx playwright show-report</code> affiche le résultat.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="phase-close" id="cloture">
+    <h2>Clôture de la Phase 0</h2>
+    <p>Validation de fin de phase : un exercice écrit combinant TypeScript pur (script Node qui lit un tableau de données, filtre, transforme via une classe typée) et une vérification que l'environnement complet (Node, npm, Git, VS Code, Playwright) est opérationnel de bout en bout.</p>
+    <table>
+      <tr><th>Critère</th><th>Attendu pour valider la phase</th></tr>
+      <tr><td>TypeScript</td><td>Écrire une classe typée avec propriété privée et méthode publique, sans aide</td></tr>
+      <tr><td>Asynchrone</td><td>Expliquer pourquoi Playwright utilise systématiquement <code>await</code></td></tr>
+      <tr><td>Environnement</td><td>Projet Git + Playwright fonctionnel, premier test exécuté et rapport lu</td></tr>
+    </table>
+    <p>Une fois ces critères validés, on démarre la Phase 1 — Playwright cœur.</p>
+  </div>
+</main>
+
+</body>
+</html>
